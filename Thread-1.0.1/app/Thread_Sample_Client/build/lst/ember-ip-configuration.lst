@@ -1,0 +1,523 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:30
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\stack\config\ember-ip-configuration.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\stack\config\ember-ip-configuration.c -D
+#        APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"ember-ip-configuration.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\stack\config\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\ember-ip-configuration.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\ember-ip-configuration.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\stack\config\ember-ip-configuration.c
+      1          /** @file ember-ip-configuration.c
+      2           * @brief User-configurable stack memory allocation and convenience stubs
+      3           * for little-used callbacks.
+      4           *
+      5           * \b Note: Application developers should \b not modify any portion
+      6           * of this file. Doing so may lead to mysterious bugs. Allocations should be
+      7           * adjusted only with macros in a custom CONFIGURATION_HEADER.
+      8           *
+      9           * <!--Copyright 2009 by Ember Corporation. All rights reserved.         *80*-->
+     10           */
+     11          #include PLATFORM_HEADER
+     12          #include "stack/core/ember-stack.h"
+     13          #include "stack/include/ember-types.h"
+     14          #include "stack/include/wakeup.h"
+     15          #include "hal/hal.h"
+     16          #include "config/config.h"
+     17          #include "stack/config/ember-configuration-defaults.h"
+     18          #include "stack/ip/zigbee/child-data.h"
+     19          #include "app/tmsp/tmsp-enum.h"
+     20          
+     21          // Declare heap memory contents based on EMBER_HEAP_SIZE
+     22          #if defined(CORTEXM3)
+
+   \                                 In section EMHEAP, align 4, root
+     23            VAR_AT_SEGMENT(NO_STRIPPING uint16_t heapMemory[(EMBER_HEAP_SIZE) / 2], __EMHEAP__);
+   \                     heapMemory:
+   \   00000000                      DS8 6000
+     24          #elif defined(EMBER_STACK_COBRA)
+     25            // on Cobra, the heap is allocated the entire unused portion of memory by the linker
+     26          #else
+     27            uint16_t heapMemory[(EMBER_HEAP_SIZE) / 2];
+     28            const uint32_t heapMemorySize = EMBER_HEAP_SIZE;
+     29          #endif
+     30          
+     31          #if (! defined (RTOS) || defined (IP_MODEM_LIBRARY))
+
+   \                                 In section .data, align 1
+     32          uint8_t emberChildTableSize = EMBER_CHILD_TABLE_SIZE;
+   \                     emberChildTableSize:
+   \   00000000   0x10               DC8 16
+
+   \                                 In section .bss, align 4
+     33          static ChildStatusFlags childStatus[EMBER_CHILD_TABLE_SIZE];
+   \                     childStatus:
+   \   00000000                      DS8 32
+
+   \                                 In section .data, align 4
+     34          ChildStatusFlags *emChildStatus = childStatus;
+   \                     emChildStatus:
+   \   00000000   0x........         DC32 childStatus
+
+   \                                 In section .bss, align 4
+     35          static EmberNodeId childIdTable[EMBER_CHILD_TABLE_SIZE + 1];
+   \                     childIdTable:
+   \   00000000                      DS8 36
+
+   \                                 In section .data, align 4
+     36          EmberNodeId *emChildIdTable = childIdTable;
+   \                     emChildIdTable:
+   \   00000000   0x........         DC32 childIdTable
+
+   \                                 In section .bss, align 4
+     37          static uint8_t childLongIdTable[(EMBER_CHILD_TABLE_SIZE + 1) * 8];
+   \                     childLongIdTable:
+   \   00000000                      DS8 136
+
+   \                                 In section .data, align 4
+     38          uint8_t *emChildLongIdTable = childLongIdTable;
+   \                     emChildLongIdTable:
+   \   00000000   0x........         DC32 childLongIdTable
+
+   \                                 In section .bss, align 4
+     39          static uint32_t childTimers[EMBER_CHILD_TABLE_SIZE];
+   \                     childTimers:
+   \   00000000                      DS8 64
+
+   \                                 In section .data, align 4
+     40          uint32_t *emChildTimers = childTimers;
+   \                     emChildTimers:
+   \   00000000   0x........         DC32 childTimers
+
+   \                                 In section .bss, align 4
+     41          static uint32_t childTimeouts[EMBER_CHILD_TABLE_SIZE];
+   \                     childTimeouts:
+   \   00000000                      DS8 64
+
+   \                                 In section .data, align 4
+     42          uint32_t *emChildTimeouts = childTimeouts;
+   \                     emChildTimeouts:
+   \   00000000   0x........         DC32 childTimeouts
+
+   \                                 In section .bss, align 4
+     43          static uint32_t childFrameCounters[EMBER_CHILD_TABLE_SIZE];
+   \                     childFrameCounters:
+   \   00000000                      DS8 64
+
+   \                                 In section .data, align 4
+     44          uint32_t *emChildFrameCounters = childFrameCounters;
+   \                     emChildFrameCounters:
+   \   00000000   0x........         DC32 childFrameCounters
+
+   \                                 In section .bss, align 4
+     45          static uint16_t childTransactionTimers[EMBER_CHILD_TABLE_SIZE];
+   \                     childTransactionTimers:
+   \   00000000                      DS8 32
+
+   \                                 In section .data, align 4
+     46          uint16_t *emChildLastTransactionTimesSec = childTransactionTimers;
+   \                     emChildLastTransactionTimesSec:
+   \   00000000   0x........         DC32 childTransactionTimers
+
+   \                                 In section .bss, align 4
+     47          static uint16_t childSecondSinceAttaching[EMBER_CHILD_TABLE_SIZE];
+   \                     childSecondSinceAttaching:
+   \   00000000                      DS8 32
+
+   \                                 In section .data, align 4
+     48          uint16_t *emChildAttachDurationSec = childSecondSinceAttaching;
+   \                     emChildAttachDurationSec:
+   \   00000000   0x........         DC32 childSecondSinceAttaching
+
+   \                                 In section .data, align 1
+     49          uint8_t emMaxEndDeviceChildren = EMBER_CHILD_TABLE_SIZE;
+   \                     emMaxEndDeviceChildren:
+   \   00000000   0x10               DC8 16
+
+   \                                 In section .data, align 2
+     50          uint16_t emberMacIndirectTimeout = EMBER_INDIRECT_TRANSMISSION_TIMEOUT;
+   \                     emberMacIndirectTimeout:
+   \   00000000   0x1E00             DC16 7680
+
+   \                                 In section .data, align 4
+     51          uint32_t emberSleepyChildPollTimeout = EMBER_SLEEPY_CHILD_POLL_TIMEOUT;
+   \                     emberSleepyChildPollTimeout:
+   \   00000000   0x0000012C         DC32 300
+
+   \                                 In section .data, align 1
+     52          uint8_t emberEndDevicePollTimeout = EMBER_END_DEVICE_POLL_TIMEOUT;
+   \                     emberEndDevicePollTimeout:
+   \   00000000   0x5B               DC8 91
+
+   \                                 In section .data, align 1
+     53          uint8_t emZigbeeNetworkSecurityLevel = EMBER_SECURITY_LEVEL;
+   \                     emZigbeeNetworkSecurityLevel:
+   \   00000000   0x05               DC8 5
+     54          // Needed by some phy files
+
+   \                                 In section .bss, align 1
+     55          uint8_t emberReservedMobileChildEntries = 0;
+   \                     emberReservedMobileChildEntries:
+   \   00000000                      DS8 1
+     56          
+
+   \                                 In section .rodata, align 1, keep-with-next
+     57          PGM uint8_t emTaskCount = EMBER_TASK_COUNT;
+   \                     emTaskCount:
+   \   00000000   0x03               DC8 3
+
+   \                                 In section .bss, align 4
+     58          EmberTaskControl emTasks[EMBER_TASK_COUNT];
+   \                     emTasks:
+   \   00000000                      DS8 36
+     59          
+
+   \                                 In section .rodata, align 4, keep-with-next
+     60          const EmberVersion emberVersion = {
+   \                     emberVersion:
+   \   00000000   0x01 0x00          DC8 1, 0, 1, 3
+   \              0x01 0x03    
+   \   00000004   0x0110             DC16 272
+   \   00000006   0x00 0x00          DC8 0, 0
+   \   00000008   0x00000309         DC32 777
+     61            EMBER_MAJOR_VERSION,
+     62            EMBER_MINOR_VERSION,
+     63            EMBER_PATCH_VERSION,
+     64            EMBER_VERSION_TYPE,
+     65            EMBER_BUILD_NUMBER,
+     66            EMBER_CHANGE_NUMBER,
+     67          };
+     68          
+     69          #ifndef EMBER_APPLICATION_HAS_GET_VERSIONS
+
+   \                                 In section .text, align 2, keep-with-next
+     70          void emApiGetVersions(void)
+     71          {
+   \                     emberGetVersions: (+1)
+   \   00000000   0xB500             PUSH     {LR}
+   \   00000002   0xB083             SUB      SP,SP,#+12
+     72            static const uint8_t emBuildTimestamp[] = __DATE__" "__TIME__;
+     73            emApiGetVersionsReturn(EMBER_VERSION_NAME,
+     74                                   EMBER_MANAGEMENT_VERSION,
+     75                                   EMBER_FULL_VERSION,
+     76                                   EMBER_BUILD_NUMBER,
+     77                                   EMBER_VERSION_TYPE,
+     78                                   emBuildTimestamp);
+   \   00000004   0x.... 0x....      ADR.W    R0,??emBuildTimestamp
+   \   00000008   0x9001             STR      R0,[SP, #+4]
+   \   0000000A   0xF44F 0x7388      MOV      R3,#+272
+   \   0000000E   0x2003             MOVS     R0,#+3
+   \   00000010   0x9000             STR      R0,[SP, #+0]
+   \   00000012   0xF241 0x0211      MOVW     R2,#+4113
+   \   00000016   0xF44F 0x6150      MOV      R1,#+3328
+   \   0000001A   0x.... 0x....      ADR.W    R0,?_1
+   \   0000001E   0x.... 0x....      BL       emberGetVersionsReturn
+     79          }
+   \   00000022   0xBD07             POP      {R0-R2,PC}       ;; return
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??emBuildTimestamp:
+   \   00000000   0x53 0x65          DC8 "Sep 28 2015 14:43:30"
+   \              0x70 0x20    
+   \              0x32 0x38    
+   \              0x20 0x32    
+   \              0x30 0x31    
+   \              0x35 0x20    
+   \              0x31 0x34    
+   \              0x3A 0x34    
+   \              0x33 0x3A    
+   \              0x33 0x30    
+   \              0x00         
+   \   00000015   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+     80          #endif
+     81          
+     82          #ifndef EMBER_APPLICATION_HAS_APP_NAME
+
+   \                                 In section .rodata, align 4, keep-with-next
+     83          const char * const emAppName = "";
+   \                     emAppName:
+   \   00000000   0x........         DC32 ?_0
+     84          #endif
+     85          #endif // ! defined (RTOS) || defined (IP_MODEM_LIBRARY)
+     86          
+     87          #ifndef EMBER_APPLICATION_HAS_SIM_NOTIFY_SERIAL_RX
+
+   \                                 In section .text, align 2, keep-with-next
+     88          bool simNotifySerialRx(const uint8_t *data, uint16_t length)
+     89          {
+     90            return true;
+   \                     simNotifySerialRx: (+1)
+   \   00000000   0x2001             MOVS     R0,#+1
+   \   00000002   0x4770             BX       LR               ;; return
+     91          }
+     92          #endif
+     93          
+     94          #ifndef EMBER_APPLICATION_HAS_EXTERNAL_MEMORY_ALLOCATION
+
+   \                                 In section .text, align 2, keep-with-next
+     95          void *emberAllocateMemoryForPacketHandler(uint32_t size, void **objectRef)
+     96          {
+     97            return NULL;
+   \                     emberAllocateMemoryForPacketHandler: (+1)
+   \   00000000   0x2000             MOVS     R0,#+0
+   \   00000002   0x4770             BX       LR               ;; return
+     98          }
+
+   \                                 In section .text, align 2, keep-with-next
+     99          void emberFreeMemoryForPacketHandler(void *objectRef) { }
+   \                     emberFreeMemoryForPacketHandler: (+1)
+   \   00000000   0x4770             BX       LR               ;; return
+
+   \                                 In section .rodata, align 1, keep-with-next
+   \                     ?_0:
+   \   00000000   0x00               DC8 ""
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x54 0x68          DC8 "Thread"
+   \              0x72 0x65    
+   \              0x61 0x64    
+   \              0x00         
+   \   00000007   0x00               DC8 0
+    100          #endif
+    101          
+    102          // Framework applications, which are distinguished by the __THREAD_CONFIG__
+    103          // define, have generated stubs for any unimplemented handlers and returns,
+    104          // making these stubs unnecessary.
+    105          #ifndef __THREAD_CONFIG__
+    106          
+    107          #ifndef EMBER_APPLICATION_HAS_POLL_HANDLER
+    108          void emberPollHandler(EmberNodeId childId, bool transmitExpected)
+    109          {
+    110          }
+    111          #endif
+    112          
+    113          #ifndef EMBER_APPLICATION_HAS_COUNTER_HANDLER
+    114            void emApiCounterHandler(EmberCounterType type, uint16_t increment) { }
+    115            #if (!defined(UNIX_HOST) && !defined(UNIX_HOST_SIM))
+    116              void emApiGetCounter(EmberCounterType type) { }
+    117              void emApiClearCounters(void) { }
+    118            #endif
+    119          #endif
+    120          
+    121          #ifndef EMBER_APPLICATION_HAS_WAKEUP_HANDLER
+    122          void emApiWakeupHandler(EmberWakeupReason reason,
+    123                                  EmberWakeupState state,
+    124                                  uint16_t remainingMs,
+    125                                  uint8_t dataByte,
+    126                                  uint16_t otaSequence)
+    127          {
+    128          }
+    129          #endif
+    130          
+    131          #ifndef EMBER_APPLICATION_HAS_NETWORK_STATUS_CHANGED_HANDLER
+    132          void emApiNetworkStatusChangedHandler(EmberNetworkStatus oldStatus,
+    133                                                EmberNetworkStatus newStatus)
+    134          {
+    135          }
+    136          #endif
+    137          
+    138          #ifndef EMBER_APPLICATION_HAS_TCP_ACCEPT_HANDLER
+    139          void emberTcpAcceptHandler(uint16_t port, uint8_t fd)
+    140          {
+    141          }
+    142          #endif
+    143          
+    144          #ifndef EMBER_APPLICATION_HAS_TCP_STATUS_HANDLER
+    145          void emberTcpStatusHandler(uint8_t fd, uint8_t status)
+    146          {
+    147          }
+    148          #endif
+    149          
+    150          #ifndef EMBER_APPLICATION_HAS_TCP_READ_HANDLER
+    151          void emberTcpReadHandler(uint8_t fd, uint8_t *incoming, uint16_t length)
+    152          {
+    153          }
+    154          #endif
+    155          
+    156          #ifndef EMBER_APPLICATION_HAS_UDP_HANDLER
+    157          void emApiUdpHandler(const uint8_t *destination,
+    158                               const uint8_t *source,
+    159                               uint16_t localPort,
+    160                               uint16_t remotePort,
+    161                               const uint8_t *payload,
+    162                               uint16_t payloadLength)
+    163          {
+    164          }
+    165          #endif
+    166          
+    167          #ifndef EMBER_APPLICATION_HAS_UDP_MULTICAST_HANDLER
+    168          void emApiUdpMulticastHandler(const uint8_t *destinationIpv6Address,
+    169                                        const uint8_t *sourceIpv6Address,
+    170                                        uint16_t localPort,
+    171                                        uint16_t remotePort,
+    172                                        uint8_t flags,
+    173                                        const uint8_t *packet,
+    174                                        uint16_t length)
+    175          {
+    176          }
+    177          #endif
+    178          
+    179          #ifndef EMBER_APPLICATION_HAS_INCOMING_ICMP_HANDLER
+    180          void emApiIncomingIcmpHandler(Ipv6Header *ipHeader)
+    181          {
+    182          }
+    183          #endif
+    184          
+    185          #ifndef EMBER_APPLICATION_HAS_MAC_PASSTHROUGH_FILTER_HANDLER
+    186          bool emApiMacPassthroughFilterHandler(uint8_t *macHeader)
+    187          {
+    188            return false;
+    189          }
+    190          #endif
+    191          
+    192          #ifndef EMBER_APPLICATION_HAS_MAC_PASSTHROUGH_MESSAGE_HANDLER
+    193          void emApiMacPassthroughMessageHandler(PacketHeader header)
+    194          {
+    195          }
+    196          #endif
+    197          
+    198          #ifndef EMBER_APPLICATION_HAS_BUTTON_TICK
+    199          void emButtonTick(void)
+    200          {
+    201          }
+    202          #endif
+    203          
+    204          #ifndef EMBER_APPLICATION_HAS_GET_VERSIONS_RETURN
+    205          void emApiGetVersionsReturn(const uint8_t *versionName,
+    206                                      uint16_t managementVersionNumber,
+    207                                      uint16_t stackVersionNumber,
+    208                                      uint16_t stackBuildNumber,
+    209                                      EmberVersionType versionType,
+    210                                      const uint8_t *buildTimestamp)
+    211          {
+    212            assert(false);
+    213          }
+    214          #endif
+    215          
+    216          #ifndef EMBER_APPLICATION_HAS_SWITCH_TO_NEXT_NETWORK_KEY_HANDLER
+    217          void emApiSwitchToNextNetworkKeyHandler(EmberStatus status)
+    218          {
+    219          }
+    220          #endif
+    221          
+    222          #ifndef EMBER_APPLICATION_HAS_ASH_STATUS_HANDLER
+    223          #include "hal/micro/generic/ash-v3.h" // for AshState
+    224          
+    225          void emberAshStatusHandler(AshState state)
+    226          {
+    227          }
+    228          #endif
+    229          
+    230          #ifndef EMBER_APPLICATION_HAS_NETWORK_STATE_CHANGED_HANDLER
+    231          void emNetworkStateChangedHandler(void) {}
+    232          #endif
+    233          
+    234          #ifndef EMBER_APPLICATION_HAS_EVENT_DELAY_UPDATED_FROM_ISR_HANDLER
+    235          void emApiEventDelayUpdatedFromIsrHandler(Event *event) {}
+    236          #endif
+    237          
+    238          #ifndef EMBER_APPLICATION_HAS_START_HOST_JOIN_CLIENT_HANDLER
+    239          void emberStartHostJoinClientHandler(const uint8_t *parentAddress) {}
+    240          #endif
+    241          
+    242          #endif // __THREAD_CONFIG__
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   emberAllocateMemoryForPacketHandler
+       0   emberFreeMemoryForPacketHandler
+      16   emberGetVersions
+        16   -> emberGetVersionsReturn
+       0   simNotifySerialRx
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       1  ?_0
+       8  ?_1
+      64  childFrameCounters
+      36  childIdTable
+     136  childLongIdTable
+      32  childSecondSinceAttaching
+      32  childStatus
+      64  childTimeouts
+      64  childTimers
+      32  childTransactionTimers
+       4  emAppName
+      24  emBuildTimestamp
+       4  emChildAttachDurationSec
+       4  emChildFrameCounters
+       4  emChildIdTable
+       4  emChildLastTransactionTimesSec
+       4  emChildLongIdTable
+       4  emChildStatus
+       4  emChildTimeouts
+       4  emChildTimers
+       1  emMaxEndDeviceChildren
+       1  emTaskCount
+      36  emTasks
+       1  emZigbeeNetworkSecurityLevel
+       4  emberAllocateMemoryForPacketHandler
+       1  emberChildTableSize
+       1  emberEndDevicePollTimeout
+       2  emberFreeMemoryForPacketHandler
+      36  emberGetVersions
+       2  emberMacIndirectTimeout
+       1  emberReservedMobileChildEntries
+       4  emberSleepyChildPollTimeout
+      12  emberVersion
+    6000  heapMemory
+       4  simNotifySerialRx
+
+ 
+   497 bytes in section .bss
+    42 bytes in section .data
+    18 bytes in section .rodata
+    78 bytes in section .text
+ 6 000 bytes in section EMHEAP
+ 
+    78 bytes of CODE  memory
+    18 bytes of CONST memory
+ 6 539 bytes of DATA  memory
+
+Errors: none
+Warnings: none

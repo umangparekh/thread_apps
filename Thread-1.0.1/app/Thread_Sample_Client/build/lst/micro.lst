@@ -1,0 +1,1340 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:33
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\micro.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\micro.c -D APP_BTL -D
+#        CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D PHY_EM3XX -D
+#        "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"micro.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\micro.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\micro.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\micro.c
+      1          /*
+      2           * File: micro.c
+      3           * Description: EM3XX micro specific full HAL functions
+      4           *
+      5           *
+      6           * Copyright 2008, 2009 by Ember Corporation. All rights reserved.          *80*
+      7           */
+      8          //[[ Author(s): Brooks Barrett, Lee Taylor ]]
+      9          
+     10          
+     11          #include PLATFORM_HEADER
+     12          #include "stack/include/ember.h"
+     13          #include "include/error.h"
+     14          
+     15          #include "hal/hal.h"
+     16          #include "app/util/serial/serial.h"
+     17          #include "hal/micro/cortexm3/diagnostic.h"
+     18          #include "hal/micro/cortexm3/memmap.h"
+     19          #include "hal/micro/cortexm3/flash.h"
+     20          #include "stack/platform/micro/debug-channel.h"
+     21          
+     22          #ifdef RTOS
+     23            #include "rtos/rtos.h"
+     24          #endif
+     25          
+     26          #ifdef  RHO_GPIO
+     27            static void halStackRadioHoldOffPowerDown(void); // fwd ref
+     28            static void halStackRadioHoldOffPowerUp(void);   // fwd ref
+     29          #else//!RHO_GPIO
+     30            #define     halStackRadioHoldOffPowerDown()      // no-op
+     31            #define     halStackRadioHoldOffPowerUp()        // no-op
+     32          #endif//RHO_GPIO
+     33          
+     34          // halInit is called on first initial boot, not on wakeup from sleep.
+
+   \                                 In section .text, align 2, keep-with-next
+     35          void halInit(void)
+     36          {
+   \                     halInit: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+     37            //[[ Strip emulator only code from official build
+     38            #ifdef EMBER_EMU_TEST
+     39              //On the emulator, give our fake XTAL reasonable thresholds so the cal
+     40              //algorithm ends up at 4.
+     41              EMU_OSC24M_CTRL =((0x8<<EMU_OSC24M_CTRL_OSC24M_THRESH_H_BIT) |
+     42                                (0x2<<EMU_OSC24M_CTRL_OSC24M_THRESH_L_BIT) |
+     43                                (0x0<<EMU_OSC24M_CTRL_OSC24M_THRESH_STOP_BIT));
+     44            #endif
+     45            //]]
+     46            
+     47            halCommonStartXtal();
+   \   00000002   0x2001             MOVS     R0,#+1
+   \   00000004   0x.... 0x....      BL       halCommonTryToSwitchToXtal
+     48            
+     49            halInternalSetRegTrim(false);
+   \   00000008   0x2000             MOVS     R0,#+0
+   \   0000000A   0x.... 0x....      BL       halInternalSetRegTrim
+     50            
+     51            GPIO_DBGCFG |= GPIO_DBGCFGRSVD;
+   \   0000000E   0x....             LDR.N    R4,??DataTable23  ;; 0x4000bc00
+   \   00000010   0x6820             LDR      R0,[R4, #+0]
+   \   00000012   0xF040 0x0008      ORR      R0,R0,#0x8
+   \   00000016   0x6020             STR      R0,[R4, #+0]
+     52            
+     53            #ifndef DISABLE_WATCHDOG
+     54              halInternalEnableWatchDog();
+   \   00000018   0x.... 0x....      BL       halInternalEnableWatchDog
+     55            #endif
+     56            
+     57            halCommonCalibratePads();
+   \   0000001C   0x.... 0x....      BL       halCommonCalibratePads
+     58          
+     59            #ifdef DISABLE_INTERNAL_1V8_REGULATOR
+     60              //Out of reset, VREG 1V8 is enabled.  Update the helper variable
+     61              //to keep the state in agreement with what the disable API is expecting.
+     62              halCommonVreg1v8EnableCount = 1;
+     63              halCommonDisableVreg1v8();
+     64            #endif
+     65            
+     66            halInternalInitBoard();
+   \   00000020   0x....             LDR.N    R1,??DataTable23_1
+   \   00000022   0x.... 0x....      BL       ?Subroutine3
+   \                     ??CrossCallReturnLabel_2: (+1)
+   \   00000026   0x788D             LDRB     R5,[R1, #+2]
+   \   00000028   0x....             LDR.N    R3,??DataTable23_2  ;; 0x4000b400
+   \   0000002A   0x60DD             STR      R5,[R3, #+12]
+   \   0000002C   0x888D             LDRH     R5,[R1, #+4]
+   \   0000002E   0x6005             STR      R5,[R0, #+0]
+   \   00000030   0x88CD             LDRH     R5,[R1, #+6]
+   \   00000032   0x6045             STR      R5,[R0, #+4]
+   \   00000034   0x.... 0x....      BL       ?Subroutine4
+   \                     ??CrossCallReturnLabel_4: (+1)
+   \   00000038   0x.... 0x....      BL       halStackRadioPowerDownBoard
+   \   0000003C   0x6820             LDR      R0,[R4, #+0]
+   \   0000003E   0xF020 0x0010      BIC      R0,R0,#0x10
+   \   00000042   0x6020             STR      R0,[R4, #+0]
+   \   00000044   0x.... 0x....      BL       halInternalInitAdc
+   \   00000048   0x.... 0x....      BL       halInternalRestartUart
+   \   0000004C   0x.... 0x....      BL       halInternalInitButton
+     67            
+     68            halCommonSwitchToXtal();
+   \   00000050   0x.... 0x....      BL       halCommonSwitchToXtal
+     69            
+     70            #ifndef DISABLE_RC_CALIBRATION
+     71              halInternalCalibrateFastRc();
+   \   00000054   0x.... 0x....      BL       halInternalCalibrateFastRc
+     72            #endif//DISABLE_RC_CALIBRATION
+     73            
+     74            halInternalStartSystemTimer();
+   \   00000058   0xE8BD 0x4031      POP      {R0,R4,R5,LR}
+   \   0000005C   0x.... 0x....      B.W      halInternalStartSystemTimer
+     75            
+     76            #ifdef INTERRUPT_DEBUGGING
+     77              //When debugging interrupts/ATOMIC, ensure that our
+     78              //debug pin is properly enabled and idle low.
+     79              I_OUT(I_PORT, I_PIN, I_CFG_HL);
+     80              I_CLR(I_PORT, I_PIN);
+     81            #endif //INTERRUPT_DEBUGGING
+     82            
+     83            #ifdef USB_CERT_TESTING
+     84            halInternalPowerDownBoard();
+     85            #endif
+     86          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine4: (+1)
+   \   00000000   0x8908             LDRH     R0,[R1, #+8]
+   \   00000002   0x6010             STR      R0,[R2, #+0]
+   \   00000004   0x8948             LDRH     R0,[R1, #+10]
+   \   00000006   0x6050             STR      R0,[R2, #+4]
+   \   00000008   0x8988             LDRH     R0,[R1, #+12]
+   \   0000000A   0x6018             STR      R0,[R3, #+0]
+   \   0000000C   0x89C8             LDRH     R0,[R1, #+14]
+   \   0000000E   0x6058             STR      R0,[R3, #+4]
+   \   00000010   0x4770             BX       LR
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine3: (+1)
+   \   00000000   0x....             LDR.N    R0,??DataTable23_4  ;; 0x4000b000
+   \   00000002   0x780A             LDRB     R2,[R1, #+0]
+   \   00000004   0x60C2             STR      R2,[R0, #+12]
+   \   00000006   0x784B             LDRB     R3,[R1, #+1]
+   \   00000008   0x....             LDR.N    R2,??DataTable23_5  ;; 0x4000b200
+   \   0000000A   0x60D3             STR      R3,[R2, #+12]
+   \   0000000C   0x4770             BX       LR
+     87          
+     88          
+
+   \                                 In section .text, align 2, keep-with-next
+     89          void halReboot(void)
+     90          {
+     91            halInternalSysReset(RESET_SOFTWARE_REBOOT);
+   \                     halReboot: (+1)
+   \   00000000   0xF240 0x6001      MOVW     R0,#+1537
+   \   00000004   0x.... 0x....      B.W      halInternalSysReset
+     92          }
+     93          
+
+   \                                 In section .text, align 2, keep-with-next
+     94          void halPowerDown(void)
+     95          {
+   \                     halPowerDown: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+     96            emDebugPowerDown();
+   \   00000002   0x.... 0x....      BL       emDebugPowerDown
+     97          
+     98            halInternalPowerDownUart();
+   \   00000006   0x.... 0x....      BL       halInternalPowerDownUart
+     99            
+    100            halInternalPowerDownBoard();
+   \   0000000A   0x....             LDR.N    R1,??DataTable23_3
+   \   0000000C   0x.... 0x....      BL       ?Subroutine3
+   \                     ??CrossCallReturnLabel_3: (+1)
+   \   00000010   0x788C             LDRB     R4,[R1, #+2]
+   \   00000012   0x....             LDR.N    R3,??DataTable23_2  ;; 0x4000b400
+   \   00000014   0x60DC             STR      R4,[R3, #+12]
+   \   00000016   0x888C             LDRH     R4,[R1, #+4]
+   \   00000018   0x6004             STR      R4,[R0, #+0]
+   \   0000001A   0x88CC             LDRH     R4,[R1, #+6]
+   \   0000001C   0x6044             STR      R4,[R0, #+4]
+   \   0000001E   0x.... 0x....      BL       ?Subroutine4
+    101          }
+   \                     ??CrossCallReturnLabel_5: (+1)
+   \   00000022   0xBD10             POP      {R4,PC}          ;; return
+    102          
+    103          // halPowerUp is called from sleep state, not from first initial boot.
+
+   \                                 In section .text, align 2, keep-with-next
+    104          void halPowerUp(void)
+    105          {
+   \                     halPowerUp: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    106            //[[ Strip emulator only code from official build
+    107            #ifdef EMBER_EMU_TEST
+    108              //On the emulator, give our fake XTAL reasonable thresholds so the cal
+    109              //algorithm ends up at 4.
+    110              EMU_OSC24M_CTRL =((0x8<<EMU_OSC24M_CTRL_OSC24M_THRESH_H_BIT) |
+    111                                (0x2<<EMU_OSC24M_CTRL_OSC24M_THRESH_L_BIT) |
+    112                                (0x0<<EMU_OSC24M_CTRL_OSC24M_THRESH_STOP_BIT));
+    113            #endif
+    114            //]]
+    115          
+    116            halInternalPowerUpKickXtal();
+   \   00000002   0x.... 0x....      BL       halInternalPowerUpKickXtal
+    117          
+    118            halCommonCalibratePads();
+   \   00000006   0x.... 0x....      BL       halCommonCalibratePads
+    119          
+    120            //NOTE: The register VREG is a high voltage register that holds its
+    121            //      state across deep sleep.  While halInit() must be sensitive
+    122            //      to the define DISABLE_INTERNAL_1V8_REGULATOR, halPowerUp() 
+    123            //      trusts that VREG hasn't been modified and therefore doesn't
+    124            //      need to take further action with respect to VREG.
+    125            
+    126            halInternalPowerUpBoard();
+   \   0000000A   0x.... 0x....      BL       ?Subroutine2
+   \                     ??CrossCallReturnLabel_1: (+1)
+   \   0000000E   0x.... 0x....      BL       ?Subroutine5
+    127          
+    128            halInternalBlockUntilXtal();
+   \                     ??CrossCallReturnLabel_7: (+1)
+   \   00000012   0x.... 0x....      BL       halInternalBlockUntilXtal
+    129          
+    130            halInternalPowerUpUart();  
+   \   00000016   0x.... 0x....      BL       halInternalPowerUpUart
+    131          
+    132            emDebugPowerUp();
+   \   0000001A   0xE8BD 0x4010      POP      {R4,LR}
+   \   0000001E   0x.... 0x....      B.W      emDebugPowerUp
+    133          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine5: (+1)
+   \   00000000   0x....             LDR.N    R0,??DataTable23  ;; 0x4000bc00
+   \   00000002   0x6801             LDR      R1,[R0, #+0]
+   \   00000004   0xF021 0x0110      BIC      R1,R1,#0x10
+   \   00000008   0x6001             STR      R1,[R0, #+0]
+   \   0000000A   0x.... 0x....      B.W      halInternalInitAdc
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine2: (+1)
+   \   00000000   0x....             LDR.N    R1,??DataTable23_1
+   \   00000002   0x....             LDR.N    R0,??DataTable23_4  ;; 0x4000b000
+   \   00000004   0x780A             LDRB     R2,[R1, #+0]
+   \   00000006   0x60C2             STR      R2,[R0, #+12]
+   \   00000008   0x784B             LDRB     R3,[R1, #+1]
+   \   0000000A   0x....             LDR.N    R2,??DataTable23_5  ;; 0x4000b200
+   \   0000000C   0x60D3             STR      R3,[R2, #+12]
+   \   0000000E   0x788C             LDRB     R4,[R1, #+2]
+   \   00000010   0x....             LDR.N    R3,??DataTable23_2  ;; 0x4000b400
+   \   00000012   0x60DC             STR      R4,[R3, #+12]
+   \   00000014   0x888C             LDRH     R4,[R1, #+4]
+   \   00000016   0x6004             STR      R4,[R0, #+0]
+   \   00000018   0x88CC             LDRH     R4,[R1, #+6]
+   \   0000001A   0x6044             STR      R4,[R0, #+4]
+   \   0000001C   0x8908             LDRH     R0,[R1, #+8]
+   \   0000001E   0x6010             STR      R0,[R2, #+0]
+   \   00000020   0x8948             LDRH     R0,[R1, #+10]
+   \   00000022   0x6050             STR      R0,[R2, #+4]
+   \   00000024   0x8988             LDRH     R0,[R1, #+12]
+   \   00000026   0x6018             STR      R0,[R3, #+0]
+   \   00000028   0x89C8             LDRH     R0,[R1, #+14]
+   \   0000002A   0x6058             STR      R0,[R3, #+4]
+   \   0000002C   0x....             B.N      halStackRadioPowerDownBoard
+    134          
+    135          // halSuspend suspends all board activity except for USB
+
+   \                                 In section .text, align 2, keep-with-next
+    136          void halSuspend(void)
+    137          {
+   \                     halSuspend: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    138            halInternalPowerDownUart();
+   \   00000002   0x.... 0x....      BL       halInternalPowerDownUart
+    139            
+    140            halInternalSuspendBoard();
+   \   00000006   0x....             LDR.N    R1,??DataTable23_6  ;; 0x4000b004
+   \   00000008   0x....             LDR.N    R0,??DataTable23_3
+   \   0000000A   0x688A             LDR      R2,[R1, #+8]
+   \   0000000C   0x7803             LDRB     R3,[R0, #+0]
+   \   0000000E   0xF002 0x020F      AND      R2,R2,#0xF
+   \   00000012   0xF003 0x03F0      AND      R3,R3,#0xF0
+   \   00000016   0x431A             ORRS     R2,R3,R2
+   \   00000018   0x608A             STR      R2,[R1, #+8]
+   \   0000001A   0x7843             LDRB     R3,[R0, #+1]
+   \   0000001C   0x....             LDR.N    R2,??DataTable23_5  ;; 0x4000b200
+   \   0000001E   0x60D3             STR      R3,[R2, #+12]
+   \   00000020   0x7884             LDRB     R4,[R0, #+2]
+   \   00000022   0x....             LDR.N    R3,??DataTable23_2  ;; 0x4000b400
+   \   00000024   0x60DC             STR      R4,[R3, #+12]
+   \   00000026   0x88C4             LDRH     R4,[R0, #+6]
+   \   00000028   0x600C             STR      R4,[R1, #+0]
+   \   0000002A   0x8901             LDRH     R1,[R0, #+8]
+   \   0000002C   0x6011             STR      R1,[R2, #+0]
+   \   0000002E   0x8941             LDRH     R1,[R0, #+10]
+   \   00000030   0x6051             STR      R1,[R2, #+4]
+   \   00000032   0x8981             LDRH     R1,[R0, #+12]
+   \   00000034   0x6019             STR      R1,[R3, #+0]
+   \   00000036   0x89C0             LDRH     R0,[R0, #+14]
+   \   00000038   0x6058             STR      R0,[R3, #+4]
+    141          }
+   \   0000003A   0xBD10             POP      {R4,PC}          ;; return
+    142          
+    143          // halResume restores all board activity from a previous USB suspend
+
+   \                                 In section .text, align 2, keep-with-next
+    144          void halResume(void)
+    145          {
+   \                     halResume: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    146            //[[ Strip emulator only code from official build
+    147            #ifdef EMBER_EMU_TEST
+    148              //On the emulator, give our fake XTAL reasonable thresholds so the cal
+    149              //algorithm ends up at 4.
+    150              EMU_OSC24M_CTRL =((0x8<<EMU_OSC24M_CTRL_OSC24M_THRESH_H_BIT) |
+    151                                (0x2<<EMU_OSC24M_CTRL_OSC24M_THRESH_L_BIT) |
+    152                                (0x0<<EMU_OSC24M_CTRL_OSC24M_THRESH_STOP_BIT));
+    153            #endif
+    154            //]]
+    155          
+    156            halInternalPowerUpKickXtal();
+   \   00000002   0x.... 0x....      BL       halInternalPowerUpKickXtal
+    157          
+    158            halCommonCalibratePads();
+   \   00000006   0x.... 0x....      BL       halCommonCalibratePads
+    159            
+    160            halInternalResumeBoard();
+   \   0000000A   0x.... 0x....      BL       ?Subroutine2
+   \                     ??CrossCallReturnLabel_0: (+1)
+   \   0000000E   0x.... 0x....      BL       ?Subroutine5
+    161          
+    162            halInternalBlockUntilXtal();
+   \                     ??CrossCallReturnLabel_6: (+1)
+   \   00000012   0x.... 0x....      BL       halInternalBlockUntilXtal
+    163          
+    164            halInternalPowerUpUart();
+   \   00000016   0xE8BD 0x4010      POP      {R4,LR}
+   \   0000001A   0x.... 0x....      B.W      halInternalPowerUpUart
+    165          }
+    166          
+    167          //If the board file defines runtime powerup/powerdown GPIO configuration,
+    168          //instantiate the variables and implement halStackRadioPowerDownBoard/
+    169          //halStackRadioPowerUpBoard which the stack will use to control the
+    170          //power state of radio specific GPIO.  If the board file does not define
+    171          //runtime GPIO configuration, the compile time configuration will work as
+    172          //it always has.
+    173          #if defined(DEFINE_POWERUP_GPIO_CFG_VARIABLES)           && \
+    174              defined(DEFINE_POWERUP_GPIO_OUTPUT_DATA_VARIABLES)   && \
+    175              defined(DEFINE_POWERDOWN_GPIO_CFG_VARIABLES)         && \
+    176              defined(DEFINE_POWERDOWN_GPIO_OUTPUT_DATA_VARIABLES) && \
+    177              defined(DEFINE_GPIO_RADIO_POWER_BOARD_MASK_VARIABLE)
+    178          
+    179          
+
+   \                                 In section .data, align 4
+    180          DEFINE_POWERUP_GPIO_CFG_VARIABLES();
+    181          DEFINE_POWERUP_GPIO_OUTPUT_DATA_VARIABLES();
+   \                     gpioOutPowerUp:
+   \   00000000   0xE0 0x4F          DC8 224, 79, 228, 0
+   \              0xE4 0x00    
+   \                     gpioCfgPowerUp:
+   \   00000004   0x4144 0x1199      DC16 16708, 4505, 34961, 38921, 18708, 6164
+   \              0x8891 0x9809
+   \              0x4914 0x1814
+
+   \                                 In section .data, align 4
+    182          DEFINE_POWERDOWN_GPIO_CFG_VARIABLES();
+    183          DEFINE_POWERDOWN_GPIO_OUTPUT_DATA_VARIABLES();
+   \                     gpioOutPowerDown:
+   \   00000000   0xE0 0x56          DC8 224, 86, 101, 0
+   \              0x65 0x00    
+   \                     gpioCfgPowerDown:
+   \   00000004   0x4144 0x1188      DC16 16708, 4488, 34833, 34945, 33048, 6168
+   \              0x8811 0x8881
+   \              0x8118 0x1818
+
+   \                                 In section .bss, align 4
+    184          DEFINE_GPIO_RADIO_POWER_BOARD_MASK_VARIABLE();
+   \                     gpioRadioPowerBoardMask:
+   \   00000000                      DS8 4
+    185                 
+    186          
+
+   \                                 In section .text, align 2, keep-with-next
+    187          static void rmwRadioPowerCfgReg(uint16_t radioPowerCfg[],
+    188                                          uint32_t volatile * cfgReg,
+    189                                          uint8_t cfgVar)
+    190          {
+   \                     rmwRadioPowerCfgReg: (+1)
+   \   00000000   0xB5F0             PUSH     {R4-R7,LR}
+    191            uint32_t temp = *cfgReg;
+   \   00000002   0x680B             LDR      R3,[R1, #+0]
+    192            uint8_t i;
+    193            
+    194            //don't waste time with a register that doesn't have anything to be done
+    195            if(gpioRadioPowerBoardMask&(((GpioMaskType)0xF)<<(4*cfgVar))) {
+   \   00000004   0x....             LDR.N    R4,??DataTable23_7
+   \   00000006   0x250F             MOVS     R5,#+15
+   \   00000008   0x6824             LDR      R4,[R4, #+0]
+   \   0000000A   0x0096             LSLS     R6,R2,#+2
+   \   0000000C   0xFA05 0xF606      LSL      R6,R5,R6
+   \   00000010   0x4234             TST      R4,R6
+   \   00000012   0xD015             BEQ.N    ??rmwRadioPowerCfgReg_0
+    196              //loop over the 4 pins of the cfgReg
+    197              for(i=0; i<4; i++) {
+   \   00000014   0x2600             MOVS     R6,#+0
+    198                if((gpioRadioPowerBoardMask>>((4*cfgVar)+i))&1) {
+   \                     ??rmwRadioPowerCfgReg_1: (+1)
+   \   00000016   0xEB06 0x0782      ADD      R7,R6,R2, LSL #+2
+   \   0000001A   0xFA24 0xF707      LSR      R7,R4,R7
+   \   0000001E   0x07FF             LSLS     R7,R7,#+31
+   \   00000020   0xD50B             BPL.N    ??rmwRadioPowerCfgReg_2
+    199                  //read-modify-write the pin's cfg if the mask says it pertains
+    200                  //to the radio's power state
+    201                  temp &= ~(0xFu<<(4*i));
+    202                  temp |= (radioPowerCfg[cfgVar]&(0xF<<(4*i)));
+   \   00000022   0x00B7             LSLS     R7,R6,#+2
+   \   00000024   0xFA05 0xFC07      LSL      R12,R5,R7
+   \   00000028   0xEA23 0x030C      BIC      R3,R3,R12
+   \   0000002C   0xF830 0xC012      LDRH     R12,[R0, R2, LSL #+1]
+   \   00000030   0xFA05 0xF707      LSL      R7,R5,R7
+   \   00000034   0xEA07 0x070C      AND      R7,R7,R12
+   \   00000038   0x433B             ORRS     R3,R7,R3
+    203                }
+    204              }
+   \                     ??rmwRadioPowerCfgReg_2: (+1)
+   \   0000003A   0x1C76             ADDS     R6,R6,#+1
+   \   0000003C   0x2E04             CMP      R6,#+4
+   \   0000003E   0xDBEA             BLT.N    ??rmwRadioPowerCfgReg_1
+    205            }
+    206            
+    207            *cfgReg = temp;
+   \                     ??rmwRadioPowerCfgReg_0: (+1)
+   \   00000040   0x600B             STR      R3,[R1, #+0]
+    208          }
+   \   00000042   0xBDF0             POP      {R4-R7,PC}       ;; return
+    209          
+    210          
+
+   \                                 In section .text, align 2, keep-with-next
+    211          static void rmwRadioPowerOutReg(uint8_t radioPowerOut[],
+    212                                          uint32_t volatile * outReg,
+    213                                          uint8_t outVar)
+    214          {
+   \                     rmwRadioPowerOutReg: (+1)
+   \   00000000   0xB5F0             PUSH     {R4-R7,LR}
+    215            uint32_t temp = *outReg;
+   \   00000002   0x680B             LDR      R3,[R1, #+0]
+    216            uint8_t i;
+    217            
+    218            //don't waste time with a register that doesn't have anything to be done
+    219            if(gpioRadioPowerBoardMask&(((GpioMaskType)0xFF)<<(8*outVar))) {
+   \   00000004   0x....             LDR.N    R4,??DataTable23_7
+   \   00000006   0x25FF             MOVS     R5,#+255
+   \   00000008   0x6824             LDR      R4,[R4, #+0]
+   \   0000000A   0x00D6             LSLS     R6,R2,#+3
+   \   0000000C   0x40B5             LSLS     R5,R5,R6
+   \   0000000E   0x422C             TST      R4,R5
+   \   00000010   0xD013             BEQ.N    ??rmwRadioPowerOutReg_0
+    220              //loop over the 8 pins of the outReg
+    221              for(i=0; i<8; i++) {
+   \   00000012   0x2500             MOVS     R5,#+0
+   \   00000014   0x2601             MOVS     R6,#+1
+    222                if((gpioRadioPowerBoardMask>>((8*outVar)+i))&1) {
+   \                     ??rmwRadioPowerOutReg_1: (+1)
+   \   00000016   0xEB05 0x07C2      ADD      R7,R5,R2, LSL #+3
+   \   0000001A   0xFA24 0xF707      LSR      R7,R4,R7
+   \   0000001E   0x07FF             LSLS     R7,R7,#+31
+   \   00000020   0xD508             BPL.N    ??rmwRadioPowerOutReg_2
+    223                  //read-modify-write the pin's out if the mask says it pertains
+    224                  //to the radio's power state
+    225                  temp &= ~(0x1u<<(1*i));
+    226                  temp |= (radioPowerOut[outVar]&(0x1<<(1*i)));
+   \   00000022   0xFA06 0xF705      LSL      R7,R6,R5
+   \   00000026   0x43BB             BICS     R3,R3,R7
+   \   00000028   0x5C17             LDRB     R7,[R2, R0]
+   \   0000002A   0xFA06 0xFC05      LSL      R12,R6,R5
+   \   0000002E   0xEA0C 0x0707      AND      R7,R12,R7
+   \   00000032   0x433B             ORRS     R3,R7,R3
+    227                }
+    228              }
+   \                     ??rmwRadioPowerOutReg_2: (+1)
+   \   00000034   0x1C6D             ADDS     R5,R5,#+1
+   \   00000036   0x2D08             CMP      R5,#+8
+   \   00000038   0xDBED             BLT.N    ??rmwRadioPowerOutReg_1
+    229            }
+    230            
+    231            *outReg = temp;
+   \                     ??rmwRadioPowerOutReg_0: (+1)
+   \   0000003A   0x600B             STR      R3,[R1, #+0]
+    232          }
+   \   0000003C   0xBDF0             POP      {R4-R7,PC}       ;; return
+    233          
+    234          
+
+   \                                 In section .text, align 2, keep-with-next
+    235          void halStackRadioPowerDownBoard(void)
+    236          {
+   \                     halStackRadioPowerDownBoard: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    237            halStackRadioHoldOffPowerDown();
+    238            if(gpioRadioPowerBoardMask == 0) {
+   \   00000002   0x....             LDR.N    R0,??DataTable23_7
+   \   00000004   0x6800             LDR      R0,[R0, #+0]
+   \   00000006   0xB108             CBZ.N    R0,??halStackRadioPowerDownBoard_0
+    239              //If the mask indicates there are no special GPIOs for the
+    240              //radio that need their power state to be conrolled by the stack,
+    241              //don't bother attempting to do anything.
+    242              return;
+    243            }
+    244            
+    245            rmwRadioPowerOutReg(gpioOutPowerDown, &GPIO_PAOUT, 0);
+   \   00000008   0x....             LDR.N    R4,??DataTable23_3
+   \   0000000A   0x....             B.N      ?Subroutine0
+   \                     ??halStackRadioPowerDownBoard_0: (+1)
+   \   0000000C   0xBD10             POP      {R4,PC}          ;; return
+    246            rmwRadioPowerOutReg(gpioOutPowerDown, &GPIO_PBOUT, 1);
+    247            rmwRadioPowerOutReg(gpioOutPowerDown, &GPIO_PCOUT, 2);
+    248            
+    249            rmwRadioPowerCfgReg(gpioCfgPowerDown, &GPIO_PACFGL, 0);
+    250            rmwRadioPowerCfgReg(gpioCfgPowerDown, &GPIO_PACFGH, 1);
+    251            rmwRadioPowerCfgReg(gpioCfgPowerDown, &GPIO_PBCFGL, 2);
+    252            rmwRadioPowerCfgReg(gpioCfgPowerDown, &GPIO_PBCFGH, 3);
+    253            rmwRadioPowerCfgReg(gpioCfgPowerDown, &GPIO_PCCFGL, 4);
+    254            rmwRadioPowerCfgReg(gpioCfgPowerDown, &GPIO_PCCFGH, 5);
+    255          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine0: (+1)
+   \   00000000   0x....             LDR.N    R1,??DataTable23_8  ;; 0x4000b00c
+   \   00000002   0x2200             MOVS     R2,#+0
+   \   00000004   0x4620             MOV      R0,R4
+   \   00000006   0x.... 0x....      BL       rmwRadioPowerOutReg
+   \   0000000A   0x2201             MOVS     R2,#+1
+   \   0000000C   0x....             LDR.N    R1,??DataTable23_9  ;; 0x4000b20c
+   \   0000000E   0x4620             MOV      R0,R4
+   \   00000010   0x.... 0x....      BL       rmwRadioPowerOutReg
+   \   00000014   0x2202             MOVS     R2,#+2
+   \   00000016   0x....             LDR.N    R1,??DataTable23_10  ;; 0x4000b40c
+   \   00000018   0x4620             MOV      R0,R4
+   \   0000001A   0x.... 0x....      BL       rmwRadioPowerOutReg
+   \   0000001E   0x2200             MOVS     R2,#+0
+   \   00000020   0x....             LDR.N    R1,??DataTable23_4  ;; 0x4000b000
+   \   00000022   0x.... 0x....      BL       ?Subroutine6
+   \                     ??CrossCallReturnLabel_12: (+1)
+   \   00000026   0x2201             MOVS     R2,#+1
+   \   00000028   0x....             LDR.N    R1,??DataTable23_6  ;; 0x4000b004
+   \   0000002A   0x.... 0x....      BL       ?Subroutine6
+   \                     ??CrossCallReturnLabel_11: (+1)
+   \   0000002E   0x2202             MOVS     R2,#+2
+   \   00000030   0x....             LDR.N    R1,??DataTable23_5  ;; 0x4000b200
+   \   00000032   0x.... 0x....      BL       ?Subroutine6
+   \                     ??CrossCallReturnLabel_10: (+1)
+   \   00000036   0x2203             MOVS     R2,#+3
+   \   00000038   0x....             LDR.N    R1,??DataTable23_11  ;; 0x4000b204
+   \   0000003A   0x.... 0x....      BL       ?Subroutine6
+   \                     ??CrossCallReturnLabel_9: (+1)
+   \   0000003E   0x2204             MOVS     R2,#+4
+   \   00000040   0x....             LDR.N    R1,??DataTable23_2  ;; 0x4000b400
+   \   00000042   0x.... 0x....      BL       ?Subroutine6
+   \                     ??CrossCallReturnLabel_8: (+1)
+   \   00000046   0x1D20             ADDS     R0,R4,#+4
+   \   00000048   0xE8BD 0x4010      POP      {R4,LR}
+   \   0000004C   0x2205             MOVS     R2,#+5
+   \   0000004E   0x....             LDR.N    R1,??DataTable23_12  ;; 0x4000b404
+   \   00000050   0x....             B.N      rmwRadioPowerCfgReg
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine6: (+1)
+   \   00000000   0x1D20             ADDS     R0,R4,#+4
+   \   00000002   0x....             B.N      rmwRadioPowerCfgReg
+    256          
+    257          
+
+   \                                 In section .text, align 2, keep-with-next
+    258          void halStackRadioPowerUpBoard(void)
+    259          {
+   \                     halStackRadioPowerUpBoard: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    260            halStackRadioHoldOffPowerUp();
+    261            if(gpioRadioPowerBoardMask == 0) {
+   \   00000002   0x....             LDR.N    R0,??DataTable23_7
+   \   00000004   0x6800             LDR      R0,[R0, #+0]
+   \   00000006   0xB108             CBZ.N    R0,??halStackRadioPowerUpBoard_0
+    262              //If the mask indicates there are no special GPIOs for the
+    263              //radio that need their power state to be conrolled by the stack,
+    264              //don't bother attempting to do anything.
+    265              return;
+    266            }
+    267            
+    268            rmwRadioPowerOutReg(gpioOutPowerUp, &GPIO_PAOUT, 0);
+   \   00000008   0x....             LDR.N    R4,??DataTable23_1
+   \   0000000A   0x....             B.N      ?Subroutine0
+   \                     ??halStackRadioPowerUpBoard_0: (+1)
+   \   0000000C   0xBD10             POP      {R4,PC}          ;; return
+    269            rmwRadioPowerOutReg(gpioOutPowerUp, &GPIO_PBOUT, 1);
+    270            rmwRadioPowerOutReg(gpioOutPowerUp, &GPIO_PCOUT, 2);
+    271            
+    272            rmwRadioPowerCfgReg(gpioCfgPowerUp, &GPIO_PACFGL, 0);
+    273            rmwRadioPowerCfgReg(gpioCfgPowerUp, &GPIO_PACFGH, 1);
+    274            rmwRadioPowerCfgReg(gpioCfgPowerUp, &GPIO_PBCFGL, 2);
+    275            rmwRadioPowerCfgReg(gpioCfgPowerUp, &GPIO_PBCFGH, 3);
+    276            rmwRadioPowerCfgReg(gpioCfgPowerUp, &GPIO_PCCFGL, 4);
+    277            rmwRadioPowerCfgReg(gpioCfgPowerUp, &GPIO_PCCFGH, 5);
+    278          }
+    279          
+    280          #else
+    281          
+    282          //If the board file uses traditional compile time powerup/powerdown GPIO
+    283          //configuration, stub halStackRadioPowerDownBoard/halStackRadioPowerUpBoard
+    284          //which the stack would have used to control the power state of radio
+    285          //relevant GPIO.  With compile time configuration, only the traditional
+    286          //halInternalPowerDownBoard and halInternalPowerUpBoard funtions configure
+    287          //the GPIO.  RHO powerdown/up still needs to be managed however.
+    288          
+    289          void halStackRadioPowerDownBoard(void)
+    290          {
+    291            halStackRadioHoldOffPowerDown();
+    292          }
+    293          void halStackRadioPowerUpBoard(void)
+    294          {
+    295            halStackRadioHoldOffPowerUp();
+    296          }
+    297          
+    298          #endif
+    299          
+
+   \                                 In section .text, align 2, keep-with-next
+    300          void halStackProcessBootCount(void)
+    301          {
+    302            //Note: Becuase this always counts up at every boot (called from emberInit),
+    303            //and non-volatile storage has a finite number of write cycles, this will
+    304            //eventually stop working.  Disable this token call if non-volatile write
+    305            //cycles need to be used sparingly.
+    306            halCommonIncrementCounterToken(TOKEN_STACK_BOOT_COUNTER);
+   \                     halStackProcessBootCount: (+1)
+   \   00000000   0x2001             MOVS     R0,#+1
+   \   00000002   0x.... 0x....      B.W      halInternalIncrementCounterToken
+    307          }
+    308          
+    309          
+
+   \                                 In section .text, align 2, keep-with-next
+    310          PGM_P halGetResetString(void)
+    311          {
+   \                     halGetResetString: (+1)
+   \   00000000   0xB580             PUSH     {R7,LR}
+    312            // Table used to convert from reset types to reset strings.
+    313            #define RESET_BASE_DEF(basename, value, string)  string,
+    314            #define RESET_EXT_DEF(basename, extname, extvalue, string)  /*nothing*/
+    315            static PGM char resetStringTable[][4] = {
+    316              #include "reset-def.h"
+    317            };
+    318            #undef RESET_BASE_DEF
+    319            #undef RESET_EXT_DEF
+    320          
+    321            return resetStringTable[halGetResetInfo()];
+   \   00000002   0x.... 0x....      BL       halGetResetInfo
+   \   00000006   0x.... 0x....      ADR.W    R1,??resetStringTable
+   \   0000000A   0x....             B.N      ?Subroutine1
+    322          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine1: (+1)
+   \   00000000   0xEB01 0x0080      ADD      R0,R1,R0, LSL #+2
+   \   00000004   0xBD02             POP      {R1,PC}          ;; return
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??resetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x46 0x49          DC8 "FIB"
+   \              0x42 0x00    
+   \   00000008   0x42 0x54          DC8 "BTL"
+   \              0x4C 0x00    
+   \   0000000C   0x45 0x58          DC8 "EXT"
+   \              0x54 0x00    
+   \   00000010   0x50 0x57          DC8 "PWR"
+   \              0x52 0x00    
+   \   00000014   0x57 0x44          DC8 "WDG"
+   \              0x47 0x00    
+   \   00000018   0x20 0x53          DC8 " SW"
+   \              0x57 0x00    
+   \   0000001C   0x43 0x52          DC8 "CRS"
+   \              0x53 0x00    
+   \   00000020   0x46 0x53          DC8 "FSH"
+   \              0x48 0x00    
+   \   00000024   0x42 0x41          DC8 "BAD"
+   \              0x44 0x00    
+   \   00000028   0x46 0x4C          DC8 "FLT"
+   \              0x54 0x00    
+    323          
+    324          // Note that this API should be used in conjunction with halGetResetString
+    325          //  to get the full information, as this API does not provide a string for
+    326          //  the base reset type
+
+   \                                 In section .text, align 2, keep-with-next
+    327          PGM_P halGetExtendedResetString(void)
+    328          {
+   \                     halGetExtendedResetString: (+1)
+   \   00000000   0xB580             PUSH     {R7,LR}
+    329            // Create a table of reset strings for each extended reset type
+    330            typedef PGM char ResetStringTableType[][4];
+    331            #define RESET_BASE_DEF(basename, value, string)   \
+    332                                   }; static ResetStringTableType basename##ResetStringTable = {
+    333            #define RESET_EXT_DEF(basename, extname, extvalue, string)  string,
+    334            {
+    335              #include "reset-def.h"
+    336            };
+    337            #undef RESET_BASE_DEF
+    338            #undef RESET_EXT_DEF
+    339            
+    340            // Create a table of pointers to each of the above tables
+    341            #define RESET_BASE_DEF(basename, value, string)  (ResetStringTableType *)basename##ResetStringTable,
+    342            #define RESET_EXT_DEF(basename, extname, extvalue, string)  /*nothing*/
+    343            static ResetStringTableType * PGM extendedResetStringTablePtrs[] = {
+    344              #include "reset-def.h"
+    345            };
+    346            #undef RESET_BASE_DEF
+    347            #undef RESET_EXT_DEF
+    348          
+    349            uint16_t extResetInfo = halGetExtendedResetInfo();
+   \   00000002   0x.... 0x....      BL       halGetExtendedResetInfo
+    350            // access the particular table of extended strings we are interested in
+    351            ResetStringTableType *extendedResetStringTable = 
+    352                              extendedResetStringTablePtrs[RESET_BASE_TYPE(extResetInfo)];
+    353          
+    354            // return the string from within the proper table
+    355            return (*extendedResetStringTable)[((extResetInfo)&0xFF)];
+   \   00000006   0x.... 0x....      ADR.W    R1,??extendedResetStringTablePtrs
+   \   0000000A   0x0402             LSLS     R2,R0,#+16
+   \   0000000C   0x0E12             LSRS     R2,R2,#+24
+   \   0000000E   0xF851 0x1022      LDR      R1,[R1, R2, LSL #+2]
+   \   00000012   0xB2C0             UXTB     R0,R0
+   \   00000014                      REQUIRE ?Subroutine1
+   \   00000014                      ;; // Fall through to label ?Subroutine1
+    356            
+    357          }
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::UNKNOWNResetStringTable[1][4]
+   \                     ??UNKNOWNResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::FIBResetStringTable[22][4]
+   \                     ??FIBResetStringTable:
+   \   00000000   0x47 0x4F          DC8 "GO "
+   \              0x20 0x00    
+   \   00000004   0x42 0x54          DC8 "BTL"
+   \              0x4C 0x00    
+   \   00000008   0x47 0x4F          DC8 "GO2"
+   \              0x32 0x00    
+   \   0000000C   0x47 0x4F          DC8 "GO3"
+   \              0x33 0x00    
+   \   00000010   0x47 0x4F          DC8 "GO4"
+   \              0x34 0x00    
+   \   00000014   0x47 0x4F          DC8 "GO5"
+   \              0x35 0x00    
+   \   00000018   0x47 0x4F          DC8 "GO6"
+   \              0x36 0x00    
+   \   0000001C   0x47 0x4F          DC8 "GO7"
+   \              0x37 0x00    
+   \   00000020   0x47 0x4F          DC8 "GO8"
+   \              0x38 0x00    
+   \   00000024   0x47 0x4F          DC8 "GO9"
+   \              0x39 0x00    
+   \   00000028   0x47 0x4F          DC8 "GOA"
+   \              0x41 0x00    
+   \   0000002C   0x47 0x4F          DC8 "GOB"
+   \              0x42 0x00    
+   \   00000030   0x47 0x4F          DC8 "GOC"
+   \              0x43 0x00    
+   \   00000034   0x47 0x4F          DC8 "GOD"
+   \              0x44 0x00    
+   \   00000038   0x47 0x4F          DC8 "GOE"
+   \              0x45 0x00    
+   \   0000003C   0x47 0x4F          DC8 "GOF"
+   \              0x46 0x00    
+   \   00000040   0x4A 0x4D          DC8 "JMP"
+   \              0x50 0x00    
+   \   00000044   0x42 0x44          DC8 "BDR"
+   \              0x52 0x00    
+   \   00000048   0x55 0x50          DC8 "UPR"
+   \              0x52 0x00    
+   \   0000004C   0x42 0x54          DC8 "BTM"
+   \              0x4D 0x00    
+   \   00000050   0x4D 0x53          DC8 "MSM"
+   \              0x4D 0x00    
+   \   00000054   0x46 0x54          DC8 "FTL"
+   \              0x4C 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::BOOTLOADERResetStringTable[8][4]
+   \                     ??BOOTLOADERResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x47 0x4F          DC8 "GO "
+   \              0x20 0x00    
+   \   00000008   0x42 0x54          DC8 "BTL"
+   \              0x4C 0x00    
+   \   0000000C   0x42 0x41          DC8 "BAD"
+   \              0x44 0x00    
+   \   00000010   0x46 0x54          DC8 "FTL"
+   \              0x4C 0x00    
+   \   00000014   0x46 0x52          DC8 "FRC"
+   \              0x43 0x00    
+   \   00000018   0x4F 0x54          DC8 "OTA"
+   \              0x41 0x00    
+   \   0000001C   0x44 0x53          DC8 "DSL"
+   \              0x4C 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::EXTERNALResetStringTable[2][4]
+   \                     ??EXTERNALResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x50 0x49          DC8 "PIN"
+   \              0x4E 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::POWERONResetStringTable[3][4]
+   \                     ??POWERONResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x48 0x56          DC8 "HV "
+   \              0x20 0x00    
+   \   00000008   0x4C 0x56          DC8 "LV "
+   \              0x20 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::WATCHDOGResetStringTable[3][4]
+   \                     ??WATCHDOGResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x45 0x58          DC8 "EXP"
+   \              0x50 0x00    
+   \   00000008   0x4C 0x57          DC8 "LWM"
+   \              0x4D 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::SOFTWAREResetStringTable[3][4]
+   \                     ??SOFTWAREResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x52 0x42          DC8 "RBT"
+   \              0x54 0x00    
+   \   00000008   0x44 0x53          DC8 "DSL"
+   \              0x4C 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::CRASHResetStringTable[2][4]
+   \                     ??CRASHResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x41 0x53          DC8 "AST"
+   \              0x54 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::FLASHResetStringTable[3][4]
+   \                     ??FLASHResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x56 0x46          DC8 "VFY"
+   \              0x59 0x00    
+   \   00000008   0x49 0x4E          DC8 "INH"
+   \              0x48 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::FATALResetStringTable[4][4]
+   \                     ??FATALResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x4C 0x43          DC8 "LCK"
+   \              0x4B 0x00    
+   \   00000008   0x58 0x54          DC8 "XTL"
+   \              0x4C 0x00    
+   \   0000000C   0x4F 0x42          DC8 "OBF"
+   \              0x46 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute char const halGetExtendedResetString::FAULTResetStringTable[8][4]
+   \                     ??FAULTResetStringTable:
+   \   00000000   0x55 0x4E          DC8 "UNK"
+   \              0x4B 0x00    
+   \   00000004   0x48 0x52          DC8 "HRD"
+   \              0x44 0x00    
+   \   00000008   0x4D 0x45          DC8 "MEM"
+   \              0x4D 0x00    
+   \   0000000C   0x42 0x55          DC8 "BUS"
+   \              0x53 0x00    
+   \   00000010   0x55 0x53          DC8 "USG"
+   \              0x47 0x00    
+   \   00000014   0x44 0x42          DC8 "DBG"
+   \              0x47 0x00    
+   \   00000018   0x44 0x4D          DC8 "DMA"
+   \              0x41 0x00    
+   \   0000001C   0x56 0x43          DC8 "VCT"
+   \              0x54 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??extendedResetStringTablePtrs:
+   \   00000000   0x........         DC32 ??UNKNOWNResetStringTable, ??FIBResetStringTable
+   \              0x........   
+   \   00000008   0x........         DC32 ??BOOTLOADERResetStringTable, ??EXTERNALResetStringTable
+   \              0x........   
+   \   00000010   0x........         DC32 ??POWERONResetStringTable, ??WATCHDOGResetStringTable
+   \              0x........   
+   \   00000018   0x........         DC32 ??SOFTWAREResetStringTable, ??CRASHResetStringTable
+   \              0x........   
+   \   00000020   0x........         DC32 ??FLASHResetStringTable, ??FATALResetStringTable
+   \              0x........   
+   \   00000028   0x........         DC32 ??FAULTResetStringTable
+    358          
+    359          // Translate EM3xx reset codes to the codes previously used by the EM2xx.
+    360          // If there is no corresponding code, return the EM3xx base code with bit 7 set.
+
+   \                                 In section .text, align 4, keep-with-next
+    361          uint8_t halGetEm2xxResetInfo(void)
+    362          {
+   \                     halGetEm2xxResetInfo: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    363            uint8_t reset = halGetResetInfo();
+   \   00000002   0x.... 0x....      BL       halGetResetInfo
+   \   00000006   0x4604             MOV      R4,R0
+    364          
+    365            // Any reset with an extended value field of zero is considered an unknown
+    366            // reset, except for FIB resets.
+    367            if ( (RESET_EXTENDED_FIELD(halGetExtendedResetInfo()) == 0) && 
+    368                 (reset != RESET_FIB) ) {
+   \   00000008   0x.... 0x....      BL       halGetExtendedResetInfo
+   \   0000000C   0xB2C0             UXTB     R0,R0
+   \   0000000E   0xB908             CBNZ.N   R0,??halGetEm2xxResetInfo_1
+   \   00000010   0x2C01             CMP      R4,#+1
+   \   00000012   0xD107             BNE.N    ??halGetEm2xxResetInfo_2
+    369               return EM2XX_RESET_UNKNOWN;
+    370            }
+    371          
+    372           switch (reset) {
+   \                     ??halGetEm2xxResetInfo_1: (+1)
+   \   00000014   0x2C07             CMP      R4,#+7
+   \   00000016   0xD811             BHI.N    ??halGetEm2xxResetInfo_3
+   \   00000018   0xE8DF 0xF004      TBB      [PC, R4]
+   \                     ??halGetEm2xxResetInfo_0:
+   \   0000001C   0x04 0x10          DC8      0x4,0x10,0x6,0x8
+   \              0x06 0x08    
+   \   00000020   0x08 0x0A          DC8      0x8,0xA,0xC,0xE
+   \              0x0C 0x0E    
+    373            case RESET_UNKNOWN:
+    374              return EM2XX_RESET_UNKNOWN;
+   \                     ??halGetEm2xxResetInfo_2: (+1)
+   \   00000024   0x2000             MOVS     R0,#+0
+   \   00000026   0xBD10             POP      {R4,PC}
+    375            case RESET_BOOTLOADER:
+    376              return EM2XX_RESET_BOOTLOADER;
+   \                     ??halGetEm2xxResetInfo_4: (+1)
+   \   00000028   0x2009             MOVS     R0,#+9
+   \   0000002A   0xBD10             POP      {R4,PC}
+    377            case RESET_EXTERNAL:      // map pin resets to poweron for EM2xx compatibility
+    378          //    return EM2XX_RESET_EXTERNAL;  
+    379            case RESET_POWERON:
+    380              return EM2XX_RESET_POWERON;
+   \                     ??halGetEm2xxResetInfo_5: (+1)
+   \   0000002C   0x2002             MOVS     R0,#+2
+   \   0000002E   0xBD10             POP      {R4,PC}
+    381            case RESET_WATCHDOG:
+    382              return EM2XX_RESET_WATCHDOG;
+   \                     ??halGetEm2xxResetInfo_6: (+1)
+   \   00000030   0x2003             MOVS     R0,#+3
+   \   00000032   0xBD10             POP      {R4,PC}
+    383            case RESET_SOFTWARE:
+    384              return EM2XX_RESET_SOFTWARE;
+   \                     ??halGetEm2xxResetInfo_7: (+1)
+   \   00000034   0x200B             MOVS     R0,#+11
+   \   00000036   0xBD10             POP      {R4,PC}
+    385            case RESET_CRASH:
+    386              return EM2XX_RESET_ASSERT;
+   \                     ??halGetEm2xxResetInfo_8: (+1)
+   \   00000038   0x2006             MOVS     R0,#+6
+   \   0000003A   0xBD10             POP      {R4,PC}
+    387            default:
+    388              return (reset | 0x80);      // set B7 for all other reset codes
+   \                     ??halGetEm2xxResetInfo_3: (+1)
+   \   0000003C   0xF044 0x0080      ORR      R0,R4,#0x80
+   \   00000040   0xBD10             POP      {R4,PC}          ;; return
+    389            }
+    390          }
+    391          
+    392          #ifdef  RHO_GPIO // BOARD_HEADER supports Radio HoldOff
+    393          
+    394          #ifdef  WAKE_ON_DFL_RHO_VAR // Only define this if needed per board header
+    395          uint8_t WAKE_ON_DFL_RHO_VAR = WAKE_ON_DFL_RHO;
+    396          #endif//WAKE_ON_DFL_RHO_VAR
+    397          
+    398          extern void emRadioHoldOffIsr(bool active);
+    399          
+    400          #define RHO_ENABLED_MASK  0x01u // RHO is enabled
+    401          #define RHO_RADIO_ON_MASK 0x02u // Radio is on (not sleeping)
+    402          static uint8_t rhoState;
+    403          
+    404          bool halGetRadioHoldOff(void)
+    405          {
+    406            return (!!(rhoState & RHO_ENABLED_MASK));
+    407          }
+    408          
+    409          // Return active state of Radio HoldOff GPIO pin
+    410          static bool halInternalRhoPinIsActive(void)
+    411          {
+    412            return (!!(RHO_IN & BIT(RHO_GPIO&7)) == !!RHO_ASSERTED);
+    413          }
+    414          
+    415          void RHO_ISR(void)
+    416          {
+    417            if (rhoState & RHO_ENABLED_MASK) {
+    418              // Ack interrupt before reading GPIO to avoid potential of missing int
+    419              INT_MISS = RHO_MISS_BIT;
+    420              INT_GPIOFLAG = RHO_FLAG_BIT; // acknowledge the interrupt
+    421              // Notify Radio land of state change
+    422              emRadioHoldOffIsr(halInternalRhoPinIsActive());
+    423            } else {
+    424             #ifdef  RHO_ISR_FOR_DFL
+    425              // Defer to default GPIO config's ISR
+    426              extern void RHO_ISR_FOR_DFL(void);
+    427              RHO_ISR_FOR_DFL(); // This ISR is expected to acknowledge the interrupt
+    428             #else//!RHO_ISR_FOR_DFL
+    429              INT_GPIOFLAG = RHO_FLAG_BIT; // acknowledge the interrupt
+    430             #endif//RHO_ISR_FOR_DFL
+    431            }
+    432          }
+    433          
+    434          EmberStatus halSetRadioHoldOff(bool enabled)
+    435          {
+    436            // If enabling afresh or disabling after having been enabled
+    437            // restart from a fresh state just in case.
+    438            // Otherwise don't touch a setup that might already have been
+    439            // put into place by the default 'DFL' use (e.g. a button).
+    440            // When disabling after having been enabled, it is up to the
+    441            // board header caller to reinit the default 'DFL' use if needed.
+    442            if (enabled || (rhoState & RHO_ENABLED_MASK)) {
+    443              RHO_INTCFG = 0;              //disable RHO triggering
+    444              INT_CFGCLR = RHO_INT_EN_BIT; //clear RHO top level int enable
+    445              INT_GPIOFLAG = RHO_FLAG_BIT; //clear stale RHO interrupt
+    446              INT_MISS = RHO_MISS_BIT;     //clear stale missed RHO interrupt
+    447            }
+    448          
+    449            rhoState = (rhoState & ~RHO_ENABLED_MASK) | (enabled ? RHO_ENABLED_MASK : 0);
+    450          
+    451            // Reconfigure GPIOs for desired state
+    452            ADJUST_GPIO_CONFIG_DFL_RHO(enabled);
+    453          
+    454            if (enabled) {
+    455              // Only update radio if it's on, otherwise defer to when it gets turned on
+    456              if (rhoState & RHO_RADIO_ON_MASK) {
+    457                emRadioHoldOffIsr(halInternalRhoPinIsActive()); //Notify Radio land of current state
+    458                INT_CFGSET = RHO_INT_EN_BIT; //set top level interrupt enable
+    459                // Interrupt on now, ISR will maintain proper state
+    460              }
+    461            } else {
+    462              emRadioHoldOffIsr(false); //Notify Radio land of configured state
+    463              // Leave interrupt state untouched (probably turned off above)
+    464            }
+    465          
+    466            return EMBER_SUCCESS;
+    467          }
+    468          
+    469          static void halStackRadioHoldOffPowerDown(void)
+    470          {
+    471            rhoState &= ~RHO_RADIO_ON_MASK;
+    472            if (rhoState & RHO_ENABLED_MASK) {
+    473              // When sleeping radio, no need to monitor RHO anymore
+    474              INT_CFGCLR = RHO_INT_EN_BIT; //clear RHO top level int enable
+    475            }
+    476          }
+    477          
+    478          static void halStackRadioHoldOffPowerUp(void)
+    479          {
+    480            rhoState |= RHO_RADIO_ON_MASK;
+    481            if (rhoState & RHO_ENABLED_MASK) {
+    482              // When waking radio, set up initial state and resume monitoring
+    483              INT_CFGCLR = RHO_INT_EN_BIT; //ensure RHO interrupt is off
+    484              RHO_ISR(); // Manually call ISR to assess current state
+    485              INT_CFGSET = RHO_INT_EN_BIT; //enable RHO interrupt
+    486            }
+    487          }
+    488          
+    489          #else//!RHO_GPIO
+    490          
+    491          // Stubs in case someone insists on referencing them
+    492          
+
+   \                                 In section .text, align 2, keep-with-next
+    493          bool halGetRadioHoldOff(void)
+    494          {
+    495            return false;
+   \                     halGetRadioHoldOff: (+1)
+   \   00000000   0x2000             MOVS     R0,#+0
+   \   00000002   0x4770             BX       LR               ;; return
+    496          }
+    497          
+
+   \                                 In section .text, align 2, keep-with-next
+    498          EmberStatus halSetRadioHoldOff(bool enabled)
+    499          {
+    500            return (enabled ? EMBER_BAD_ARGUMENT : EMBER_SUCCESS);
+   \                     halSetRadioHoldOff: (+1)
+   \   00000000   0xB100             CBZ.N    R0,??halSetRadioHoldOff_0
+   \   00000002   0x2002             MOVS     R0,#+2
+   \                     ??halSetRadioHoldOff_0: (+1)
+   \   00000004   0x4770             BX       LR               ;; return
+    501          }
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23:
+   \   00000000   0x4000BC00         DC32     0x4000bc00
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_1:
+   \   00000000   0x........         DC32     gpioOutPowerUp
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_2:
+   \   00000000   0x4000B400         DC32     0x4000b400
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_3:
+   \   00000000   0x........         DC32     gpioOutPowerDown
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_4:
+   \   00000000   0x4000B000         DC32     0x4000b000
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_5:
+   \   00000000   0x4000B200         DC32     0x4000b200
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_6:
+   \   00000000   0x4000B004         DC32     0x4000b004
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_7:
+   \   00000000   0x........         DC32     gpioRadioPowerBoardMask
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_8:
+   \   00000000   0x4000B00C         DC32     0x4000b00c
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_9:
+   \   00000000   0x4000B20C         DC32     0x4000b20c
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_10:
+   \   00000000   0x4000B40C         DC32     0x4000b40c
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_11:
+   \   00000000   0x4000B204         DC32     0x4000b204
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable23_12:
+   \   00000000   0x4000B404         DC32     0x4000b404
+    502          
+    503          #endif//RHO_GPIO // Board header supports Radio HoldOff
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   halGetEm2xxResetInfo
+         8   -> halGetExtendedResetInfo
+         8   -> halGetResetInfo
+       8   halGetExtendedResetString
+         8   -> halGetExtendedResetInfo
+       0   halGetRadioHoldOff
+       8   halGetResetString
+         8   -> halGetResetInfo
+      16   halInit
+        16   -> halCommonCalibratePads
+        16   -> halCommonSwitchToXtal
+        16   -> halCommonTryToSwitchToXtal
+        16   -> halInternalCalibrateFastRc
+        16   -> halInternalEnableWatchDog
+        16   -> halInternalInitAdc
+        16   -> halInternalInitButton
+        16   -> halInternalRestartUart
+        16   -> halInternalSetRegTrim
+         0   -> halInternalStartSystemTimer
+        16   -> halStackRadioPowerDownBoard
+       8   halPowerDown
+         8   -> emDebugPowerDown
+         8   -> halInternalPowerDownUart
+       8   halPowerUp
+         0   -> emDebugPowerUp
+         8   -> halCommonCalibratePads
+         8   -> halInternalBlockUntilXtal
+         8   -> halInternalInitAdc
+         8   -> halInternalPowerUpKickXtal
+         8   -> halInternalPowerUpUart
+         8   -> halStackRadioPowerDownBoard
+       0   halReboot
+         0   -> halInternalSysReset
+       8   halResume
+         8   -> halCommonCalibratePads
+         8   -> halInternalBlockUntilXtal
+         8   -> halInternalInitAdc
+         8   -> halInternalPowerUpKickXtal
+         0   -> halInternalPowerUpUart
+         8   -> halStackRadioPowerDownBoard
+       0   halSetRadioHoldOff
+       0   halStackProcessBootCount
+         0   -> halInternalIncrementCounterToken
+       8   halStackRadioPowerDownBoard
+         0   -> rmwRadioPowerCfgReg
+         8   -> rmwRadioPowerCfgReg
+         8   -> rmwRadioPowerOutReg
+       8   halStackRadioPowerUpBoard
+         0   -> rmwRadioPowerCfgReg
+         8   -> rmwRadioPowerCfgReg
+         8   -> rmwRadioPowerOutReg
+       8   halSuspend
+         8   -> halInternalPowerDownUart
+      20   rmwRadioPowerCfgReg
+      20   rmwRadioPowerOutReg
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable23
+       4  ??DataTable23_1
+       4  ??DataTable23_10
+       4  ??DataTable23_11
+       4  ??DataTable23_12
+       4  ??DataTable23_2
+       4  ??DataTable23_3
+       4  ??DataTable23_4
+       4  ??DataTable23_5
+       4  ??DataTable23_6
+       4  ??DataTable23_7
+       4  ??DataTable23_8
+       4  ??DataTable23_9
+      82  ?Subroutine0
+       6  ?Subroutine1
+      46  ?Subroutine2
+      14  ?Subroutine3
+      18  ?Subroutine4
+      14  ?Subroutine5
+       4  ?Subroutine6
+      32  BOOTLOADERResetStringTable
+       8  CRASHResetStringTable
+       8  EXTERNALResetStringTable
+      16  FATALResetStringTable
+      32  FAULTResetStringTable
+      88  FIBResetStringTable
+      12  FLASHResetStringTable
+      12  POWERONResetStringTable
+      12  SOFTWAREResetStringTable
+       4  UNKNOWNResetStringTable
+      12  WATCHDOGResetStringTable
+      44  extendedResetStringTablePtrs
+      16  gpioOutPowerDown
+          gpioCfgPowerDown
+      16  gpioOutPowerUp
+          gpioCfgPowerUp
+       4  gpioRadioPowerBoardMask
+      66  halGetEm2xxResetInfo
+      20  halGetExtendedResetString
+       4  halGetRadioHoldOff
+      12  halGetResetString
+      96  halInit
+      36  halPowerDown
+      34  halPowerUp
+       8  halReboot
+      30  halResume
+       6  halSetRadioHoldOff
+       6  halStackProcessBootCount
+      14  halStackRadioPowerDownBoard
+      14  halStackRadioPowerUpBoard
+      60  halSuspend
+      44  resetStringTable
+      68  rmwRadioPowerCfgReg
+      62  rmwRadioPowerOutReg
+
+ 
+   4 bytes in section .bss
+  32 bytes in section .data
+ 236 bytes in section .rodata
+ 860 bytes in section .text
+ 
+ 860 bytes of CODE  memory
+ 236 bytes of CONST memory
+  36 bytes of DATA  memory
+
+Errors: none
+Warnings: none

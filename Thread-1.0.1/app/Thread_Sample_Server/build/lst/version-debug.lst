@@ -1,0 +1,268 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  13:29:37
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\version-debug\version-debug.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\version-debug\version-debug.c
+#        -D APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"version-debug.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\version-debug\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\version-debug.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\version-debug.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\version-debug\version-debug.c
+      1          // Copyright 2015 Silicon Laboratories, Inc.
+      2          
+      3          #include PLATFORM_HEADER
+      4          #include CONFIGURATION_HEADER
+      5          #include EMBER_AF_API_STACK
+      6          #include EMBER_AF_API_HAL
+      7          #ifdef EMBER_AF_API_DEBUG_PRINT
+      8            #include EMBER_AF_API_DEBUG_PRINT
+      9          #endif
+     10          #include "stack/config/config.h"
+     11          
+     12          #ifndef ALIAS
+     13            #define ALIAS(x) x
+     14          #endif
+     15          
+
+   \                                 In section .text, align 4, keep-with-next
+     16          static const char * const versionTypeNames[] = {
+   \                     versionTypeNames:
+   \   00000000   0x........         DC32 ?_0, ?_1, ?_2, ?_3, ?_4, ?_5
+   \              0x........   
+   \              0x........   
+   \              0x........   
+   \              0x........   
+   \              0x........   
+     17            EMBER_VERSION_TYPE_NAMES
+     18          };
+     19          
+
+   \                                 In section .text, align 2, keep-with-next
+     20          void ALIAS(emberGetVersionsReturn)(const uint8_t *versionName,
+     21                                             uint16_t managementVersionNumber,
+     22                                             uint16_t stackVersionNumber,
+     23                                             uint16_t stackBuildNumber,
+     24                                             EmberVersionType versionType,
+     25                                             const uint8_t *buildTimestamp)
+     26          {
+   \                     emberGetVersionsReturn: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0xB084             SUB      SP,SP,#+16
+     27          #ifdef EMBER_HOST
+     28            emberAfCorePrint("Host: ");
+     29            emberAfCorePrint("%s %u.%u.%u.%u",
+     30                             EMBER_VERSION_NAME,
+     31                             EMBER_MAJOR_VERSION,
+     32                             EMBER_MINOR_VERSION,
+     33                             EMBER_PATCH_VERSION,
+     34                             EMBER_SPECIAL_VERSION);
+     35            if (EMBER_VERSION_TYPE <= EMBER_VERSION_TYPE_MAX) {
+     36              emberAfCorePrint(" %s", versionTypeNames[EMBER_VERSION_TYPE]);
+     37            }
+     38            emberAfCorePrint(" build %u", EMBER_BUILD_NUMBER);
+     39            emberAfCorePrintln(" management %u", EMBER_MANAGEMENT_VERSION);
+     40            emberAfCorePrint("NCP: ");
+     41          #endif
+     42          
+     43            emberAfCorePrint("%s %u.%u.%u.%u",
+     44                             versionName,
+     45                             (stackVersionNumber & 0xF000) >> 12,
+     46                             (stackVersionNumber & 0x0F00) >> 8,
+     47                             (stackVersionNumber & 0x00F0) >> 4,
+     48                             (stackVersionNumber & 0x000F));
+   \   00000004   0xF002 0x010F      AND      R1,R2,#0xF
+   \   00000008   0x9102             STR      R1,[SP, #+8]
+   \   0000000A   0x461C             MOV      R4,R3
+   \   0000000C   0xF3C2 0x1103      UBFX     R1,R2,#+4,#+4
+   \   00000010   0x9101             STR      R1,[SP, #+4]
+   \   00000012   0x0B13             LSRS     R3,R2,#+12
+   \   00000014   0xF3C2 0x2103      UBFX     R1,R2,#+8,#+4
+   \   00000018   0x9100             STR      R1,[SP, #+0]
+   \   0000001A   0x4602             MOV      R2,R0
+   \   0000001C   0x.... 0x....      ADR.W    R1,?_6
+   \   00000020   0x2001             MOVS     R0,#+1
+   \   00000022   0x.... 0x....      BL       emberAfPrint
+   \   00000026   0x9806             LDR      R0,[SP, #+24]
+     49            if (versionType <= EMBER_VERSION_TYPE_MAX) {
+   \   00000028   0x2806             CMP      R0,#+6
+   \   0000002A   0xDA07             BGE.N    ??emberGetVersionsReturn_0
+     50              emberAfCorePrint(" %s", versionTypeNames[versionType]);
+   \   0000002C   0x.... 0x....      ADR.W    R1,versionTypeNames
+   \   00000030   0xF851 0x2020      LDR      R2,[R1, R0, LSL #+2]
+   \   00000034   0x....             ADR.N    R1,??DataTable11  ;; " %s"
+   \   00000036   0x2001             MOVS     R0,#+1
+   \   00000038   0x.... 0x....      BL       emberAfPrint
+     51            }
+     52            emberAfCorePrint(" build %u", stackBuildNumber);
+   \                     ??emberGetVersionsReturn_0: (+1)
+   \   0000003C   0x4622             MOV      R2,R4
+   \   0000003E   0x.... 0x....      ADR.W    R1,?_8
+   \   00000042   0x2001             MOVS     R0,#+1
+   \   00000044   0x.... 0x....      BL       emberAfPrint
+     53          #ifdef EMBER_HOST
+     54            emberAfCorePrint(" management %u", managementVersionNumber);
+     55          #endif
+     56            emberAfCorePrintln("");
+   \   00000048   0xB004             ADD      SP,SP,#+16
+   \   0000004A   0xE8BD 0x4010      POP      {R4,LR}
+   \   0000004E   0x....             ADR.N    R1,??DataTable11_1  ;; ""
+   \   00000050   0x2001             MOVS     R0,#+1
+   \   00000052   0x.... 0x....      B.W      emberAfPrintln
+     57          }
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable11:
+   \   00000000   0x20 0x25          DC8      " %s"
+   \              0x73 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable11_1:
+   \   00000000   0x00 0x00          DC8      "",0x0,0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_6:
+   \   00000000   0x25 0x73          DC8 "%s %u.%u.%u.%u"
+   \              0x20 0x25    
+   \              0x75 0x2E    
+   \              0x25 0x75    
+   \              0x2E 0x25    
+   \              0x75 0x2E    
+   \              0x25 0x75    
+   \              0x00         
+   \   0000000F   0x00               DC8 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_8:
+   \   00000000   0x20 0x62          DC8 " build %u"
+   \              0x75 0x69    
+   \              0x6C 0x64    
+   \              0x20 0x25    
+   \              0x75 0x00    
+   \   0000000A   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_0:
+   \   00000000   0x49 0x6E          DC8 "Internal"
+   \              0x74 0x65    
+   \              0x72 0x6E    
+   \              0x61 0x6C    
+   \              0x00         
+   \   00000009   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x41 0x6C          DC8 "Alpha"
+   \              0x70 0x68    
+   \              0x61 0x00    
+   \   00000006   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x42 0x65          DC8 "Beta"
+   \              0x74 0x61    
+   \              0x00         
+   \   00000005   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_3:
+   \   00000000   0x47 0x41          DC8 "GA"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_4:
+   \   00000000   0x53 0x70          DC8 "Special"
+   \              0x65 0x63    
+   \              0x69 0x61    
+   \              0x6C 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_5:
+   \   00000000   0x4C 0x65          DC8 "Legacy"
+   \              0x67 0x61    
+   \              0x63 0x79    
+   \              0x00         
+   \   00000007   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_7:
+   \   00000000   0x20 0x25          DC8 " %s"
+   \              0x73 0x00    
+
+   \                                 In section .rodata, align 1, keep-with-next
+   \                     ?_9:
+   \   00000000   0x00               DC8 ""
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      24   emberGetVersionsReturn
+        24   -> emberAfPrint
+         0   -> emberAfPrintln
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable11
+       4  ??DataTable11_1
+      12  ?_0
+       8  ?_1
+       8  ?_2
+       4  ?_3
+       8  ?_4
+       8  ?_5
+      16  ?_6
+       4  ?_7
+      12  ?_8
+       1  ?_9
+      86  emberGetVersionsReturn
+      24  versionTypeNames
+
+ 
+  53 bytes in section .rodata
+ 146 bytes in section .text
+ 
+ 146 bytes of CODE  memory
+  53 bytes of CONST memory
+
+Errors: none
+Warnings: none

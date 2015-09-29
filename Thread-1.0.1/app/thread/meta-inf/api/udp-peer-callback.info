@@ -1,0 +1,14 @@
+#include PLATFORM_HEADER
+#include CONFIGURATION_HEADER
+#include EMBER_AF_API_STACK
+
+/** @brief Receive a multicast */
+void emberUdpMulticastHandler(const uint8_t *destinationIpv6Address,
+                              const uint8_t *sourceIpv6Address,
+                              uint16_t localPort,
+                              uint16_t remotePort,
+                              uint8_t flags,
+                              const uint8_t *packet,
+                              uint16_t length)
+{
+}

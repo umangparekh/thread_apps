@@ -1,0 +1,9 @@
+#include PLATFORM_HEADER
+#include CONFIGURATION_HEADER
+#include EMBER_AF_API_STACK
+
+// Applications that use buffers must mark them by defining this function.
+// The stack uses this when reclaiming unused buffers.
+void emberMarkApplicationBuffers(void)
+{
+}

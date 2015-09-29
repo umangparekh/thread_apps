@@ -1,0 +1,193 @@
+# Architectures.
+
+device "EM3xx SoC" {
+  required:hal-library
+  required:serial
+  required:thread-stack
+
+  recommended:adc
+  recommended:button
+  recommended:buzzer
+  recommended:cli
+  recommended:coap-cli
+  recommended:command-interpreter2
+  recommended:debug-print
+  recommended:dhcp-client
+  recommended:diagnostic
+  recommended:heartbeat
+  recommended:icmp-cli
+  recommended:idle-sleep
+  recommended:led
+  recommended:main
+  recommended:mfglib-library
+  recommended:network-management-cli
+  recommended:sim-eeprom1
+  recommended:slaac-client
+  recommended:udp-cli
+
+  optional:address-configuration-debug
+  optional:button-stub
+  optional:buzzer-stub
+  optional:coap-debug
+  optional:diagnostic-stub
+  optional:ext-device
+  optional:global-address-prefix-debug
+  optional:icmp-debug
+  optional:infrared-led
+  optional:key-matrix
+  optional:led-stub
+  optional:mfglib-stub-library
+  optional:polling
+  optional:scan-debug
+  optional:sim-eeprom2
+  optional:sim-eeprom2-1to2-upgrade
+  optional:sim-eeprom2-1to2-upgrade-stub
+  optional:tftp-bootload-target
+  optional:udp-debug
+  optional:version-debug
+
+  prohibited:ash-v3
+  prohibited:ash-v3-stub
+  prohibited:binary-management
+  prohibited:hal-link-library
+  prohibited:host-network-management
+  prohibited:ncp-library
+  prohibited:stm32f103ret-library
+  prohibited:unix-library
+}
+
+device "EM3xx NCP" {
+  required:ncp-library
+  required:thread-stack
+
+  # TODO: Consolidate hal-link-library and hal-library.
+  required:hal-link-library
+  prohibited:hal-library
+
+  # TODO: Consolidate binary-management and command-interpreter2.
+  recommended:binary-management
+  prohibited:command-interpreter2
+
+  # TODO: Consolidate serial-link and serial.
+  prohibited:serial
+
+  recommended:adc
+  recommended:button-stub
+  recommended:buzzer-stub
+  recommended:debug-print
+  recommended:diagnostic
+  recommended:led-stub
+  recommended:mfglib-library
+  recommended:sim-eeprom1
+
+  optional:button
+  optional:buzzer
+  optional:diagnostic-stub
+  optional:ext-device
+  optional:infrared-led
+  optional:key-matrix
+  optional:led
+  optional:mfglib-stub-library
+  optional:sim-eeprom2
+  optional:sim-eeprom2-1to2-upgrade
+  optional:sim-eeprom2-1to2-upgrade-stub
+
+  prohibited:address-configuration-debug
+  prohibited:cli
+  prohibited:coap-cli
+  prohibited:coap-debug
+  prohibited:dhcp-client
+  prohibited:global-address-prefix-debug
+  prohibited:heartbeat
+  prohibited:host-network-management
+  prohibited:icmp-cli
+  prohibited:icmp-debug
+  prohibited:idle-sleep
+  prohibited:main
+  prohibited:network-management-cli
+  prohibited:polling
+  prohibited:scan-debug
+  prohibited:slaac-client
+  prohibited:stm32f103ret-library
+  prohibited:tftp-bootload-target
+  prohibited:udp-cli
+  prohibited:udp-debug
+  prohibited:unix-library
+  prohibited:version-debug
+}
+
+device "Unix host" {
+  required:unix-library
+
+  recommended:cli
+  recommended:coap-cli
+  recommended:command-interpreter2
+  recommended:debug-print
+  recommended:dhcp-client
+  recommended:host-network-management
+  recommended:icmp-cli
+  recommended:main
+  recommended:mfglib-library
+  recommended:network-management-cli
+  recommended:serial
+  recommended:slaac-client
+  recommended:udp-cli
+
+  optional:address-configuration-debug
+  optional:button-stub
+  optional:buzzer-stub
+  optional:coap-debug
+  optional:global-address-prefix-debug
+  optional:heartbeat
+  optional:icmp-debug
+  optional:led-stub
+  optional:polling
+  optional:scan-debug
+  optional:udp-debug
+  optional:version-debug
+
+  prohibited:adc
+  prohibited:ash-v3
+  prohibited:ash-v3-stub
+  prohibited:binary-management
+  prohibited:button
+  prohibited:buzzer
+  prohibited:diagnostic
+  prohibited:diagnostic-stub
+  prohibited:ext-device
+  prohibited:hal-library
+  prohibited:hal-link-library
+  prohibited:idle-sleep
+  prohibited:infrared-led
+  prohibited:key-matrix
+  prohibited:led
+  prohibited:mfglib-stub-library
+  prohibited:ncp-library
+  prohibited:sim-eeprom1
+  prohibited:sim-eeprom2
+  prohibited:sim-eeprom2-1to2-upgrade
+  prohibited:sim-eeprom2-1to2-upgrade-stub
+  prohibited:stm32f103ret-library
+  prohibited:tftp-bootload-target
+  prohibited:thread-stack
+}
+
+# NCP types
+
+device "NCP UART" {
+  required:ash-v3
+}
+
+# Node types.
+
+device "Router" {
+  prohibited:polling
+}
+
+device "End Device" {
+  prohibited:polling
+}
+
+device "Sleepy End Device" {
+  recommended:polling
+}

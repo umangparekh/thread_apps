@@ -1,0 +1,277 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:40
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\udp-cli\udp-cli.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\udp-cli\udp-cli.c -D
+#        APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"udp-cli.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\udp-cli\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\udp-cli.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\udp-cli.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\udp-cli\udp-cli.c
+      1          // Copyright 2015 Silicon Laboratories, Inc.
+      2          
+      3          #include PLATFORM_HEADER
+      4          #include CONFIGURATION_HEADER
+      5          #include EMBER_AF_API_STACK
+      6          #include EMBER_AF_API_HAL
+      7          #include EMBER_AF_API_COMMAND_INTERPRETER2
+      8          #ifdef EMBER_AF_API_DEBUG_PRINT
+      9            #include EMBER_AF_API_DEBUG_PRINT
+     10          #endif
+     11          
+     12          // udp listen <port:2> <address>
+
+   \                                 In section .text, align 2, keep-with-next
+     13          void udpListenCommand(void)
+     14          {
+   \                     udpListenCommand: (+1)
+   \   00000000   0xB51F             PUSH     {R0-R4,LR}
+     15            uint16_t port;
+     16            EmberIpv6Address address;
+     17            EmberStatus status;
+     18          
+     19            port = (uint16_t)emberUnsignedCommandArgument(0);
+   \   00000002   0x2000             MOVS     R0,#+0
+   \   00000004   0x.... 0x....      BL       emberUnsignedCommandArgument
+   \   00000008   0x4604             MOV      R4,R0
+     20            if (!emberGetIpArgument(1, address.bytes)) {
+   \   0000000A   0xA900             ADD      R1,SP,#+0
+   \   0000000C   0x2001             MOVS     R0,#+1
+   \   0000000E   0x.... 0x....      BL       emberGetIpArgument
+   \   00000012   0xB910             CBNZ.N   R0,??udpListenCommand_0
+     21              emberAfAppPrintln("%p: %p", "ERR", "invalid ip");
+   \   00000014   0x.... 0x....      BL       ?Subroutine0
+     22              return;
+     23            }
+   \                     ??CrossCallReturnLabel_0: (+1)
+   \   00000018   0xE008             B.N      ??udpListenCommand_1
+     24          
+     25            status = emberUdpListen(port, address.bytes);
+   \                     ??udpListenCommand_0: (+1)
+   \   0000001A   0xA900             ADD      R1,SP,#+0
+   \   0000001C   0xB2A0             UXTH     R0,R4
+   \   0000001E   0x.... 0x....      BL       emberUdpListen
+     26            emberAfAppPrintln("%p 0x%x", "listen", status);
+   \   00000022   0x4603             MOV      R3,R0
+   \   00000024   0x.... 0x....      ADR.W    R2,?_4
+   \   00000028   0x.... 0x....      ADR.W    R1,?_3
+   \                     ??udpListenCommand_1: (+1)
+   \   0000002C   0x2002             MOVS     R0,#+2
+   \   0000002E   0x.... 0x....      BL       emberAfPrintln
+     27          }
+   \   00000032   0xBD1F             POP      {R0-R4,PC}       ;; return
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine0: (+1)
+   \   00000000   0x.... 0x....      ADR.W    R3,?_2
+   \   00000004   0x.... 0x....      ADR.W    R1,?_0
+   \   00000008   0x....             ADR.N    R2,??DataTable6  ;; "ERR"
+   \   0000000A   0x4770             BX       LR
+     28          
+     29          // udp send <options:1> <destination> <hop limit:1> <source port:2> <destination port:2> <payload>
+
+   \                                 In section .text, align 2, keep-with-next
+     30          void udpSendCommand(void)
+     31          {
+   \                     udpSendCommand: (+1)
+   \   00000000   0xB5F0             PUSH     {R4-R7,LR}
+   \   00000002   0xB089             SUB      SP,SP,#+36
+     32            uint8_t options;
+     33            EmberIpv6Address destination;
+     34            uint8_t hopLimit;
+     35            uint16_t sourcePort;
+     36            uint16_t destinationPort;
+     37            uint8_t *payload;
+     38            uint8_t payloadLength;
+     39            EmberStatus status;
+     40          
+     41            options = (uint8_t)emberUnsignedCommandArgument(0);
+   \   00000004   0x2000             MOVS     R0,#+0
+   \   00000006   0x.... 0x....      BL       emberUnsignedCommandArgument
+   \   0000000A   0x4604             MOV      R4,R0
+     42          
+     43            if (!emberGetIpArgument(1, destination.bytes)) {
+   \   0000000C   0xA904             ADD      R1,SP,#+16
+   \   0000000E   0x2001             MOVS     R0,#+1
+   \   00000010   0x.... 0x....      BL       emberGetIpArgument
+   \   00000014   0xB910             CBNZ.N   R0,??udpSendCommand_0
+     44              emberAfAppPrintln("%p: %p", "ERR", "invalid ip");
+   \   00000016   0x.... 0x....      BL       ?Subroutine0
+     45              return;
+     46            }
+   \                     ??CrossCallReturnLabel_1: (+1)
+   \   0000001A   0xE020             B.N      ??udpSendCommand_1
+     47          
+     48            hopLimit = (uint8_t)emberUnsignedCommandArgument(2);
+   \                     ??udpSendCommand_0: (+1)
+   \   0000001C   0x2002             MOVS     R0,#+2
+   \   0000001E   0x.... 0x....      BL       emberUnsignedCommandArgument
+   \   00000022   0x4605             MOV      R5,R0
+     49          
+     50            sourcePort = (uint16_t)emberUnsignedCommandArgument(3);
+   \   00000024   0x2003             MOVS     R0,#+3
+   \   00000026   0x.... 0x....      BL       emberUnsignedCommandArgument
+   \   0000002A   0x4606             MOV      R6,R0
+     51            destinationPort = (uint16_t)emberUnsignedCommandArgument(4);
+   \   0000002C   0x2004             MOVS     R0,#+4
+   \   0000002E   0x.... 0x....      BL       emberUnsignedCommandArgument
+   \   00000032   0x4607             MOV      R7,R0
+     52          
+     53            payload = emberStringCommandArgument(5, &payloadLength);
+   \   00000034   0xA903             ADD      R1,SP,#+12
+   \   00000036   0x2005             MOVS     R0,#+5
+   \   00000038   0x.... 0x....      BL       emberStringCommandArgument
+     54          
+     55            status = emberSendUdp(options,
+     56                                  destination.bytes,
+     57                                  hopLimit,
+     58                                  sourcePort,
+     59                                  destinationPort,
+     60                                  payload,
+     61                                  payloadLength);
+   \   0000003C   0xF89D 0x100C      LDRB     R1,[SP, #+12]
+   \   00000040   0x9102             STR      R1,[SP, #+8]
+   \   00000042   0x9001             STR      R0,[SP, #+4]
+   \   00000044   0xB2BF             UXTH     R7,R7
+   \   00000046   0x9700             STR      R7,[SP, #+0]
+   \   00000048   0xB2B3             UXTH     R3,R6
+   \   0000004A   0xB2EA             UXTB     R2,R5
+   \   0000004C   0xA904             ADD      R1,SP,#+16
+   \   0000004E   0xB2E0             UXTB     R0,R4
+   \   00000050   0x.... 0x....      BL       emberSendUdp
+   \   00000054   0x4603             MOV      R3,R0
+     62            emberAfAppPrintln("%p 0x%x", "send", status);
+   \   00000056   0x.... 0x....      ADR.W    R2,?_5
+   \   0000005A   0x.... 0x....      ADR.W    R1,?_3
+   \                     ??udpSendCommand_1: (+1)
+   \   0000005E   0x2002             MOVS     R0,#+2
+   \   00000060   0x.... 0x....      BL       emberAfPrintln
+     63          }
+   \   00000064   0xB009             ADD      SP,SP,#+36
+   \   00000066   0xBDF0             POP      {R4-R7,PC}       ;; return
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable6:
+   \   00000000   0x45 0x52          DC8      "ERR"
+   \              0x52 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_0:
+   \   00000000   0x25 0x70          DC8 "%p: %p"
+   \              0x3A 0x20    
+   \              0x25 0x70    
+   \              0x00         
+   \   00000007   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x45 0x52          DC8 "ERR"
+   \              0x52 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x69 0x6E          DC8 "invalid ip"
+   \              0x76 0x61    
+   \              0x6C 0x69    
+   \              0x64 0x20    
+   \              0x69 0x70    
+   \              0x00         
+   \   0000000B   0x00               DC8 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_3:
+   \   00000000   0x25 0x70          DC8 "%p 0x%x"
+   \              0x20 0x30    
+   \              0x78 0x25    
+   \              0x78 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_4:
+   \   00000000   0x6C 0x69          DC8 "listen"
+   \              0x73 0x74    
+   \              0x65 0x6E    
+   \              0x00         
+   \   00000007   0x00               DC8 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_5:
+   \   00000000   0x73 0x65          DC8 "send"
+   \              0x6E 0x64    
+   \              0x00         
+   \   00000005   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      24   udpListenCommand
+        24   -> emberAfPrintln
+        24   -> emberGetIpArgument
+        24   -> emberUdpListen
+        24   -> emberUnsignedCommandArgument
+      56   udpSendCommand
+        56   -> emberAfPrintln
+        56   -> emberGetIpArgument
+        56   -> emberSendUdp
+        56   -> emberStringCommandArgument
+        56   -> emberUnsignedCommandArgument
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable6
+      12  ?Subroutine0
+       8  ?_0
+       4  ?_1
+      12  ?_2
+       8  ?_3
+       8  ?_4
+       8  ?_5
+      52  udpListenCommand
+     104  udpSendCommand
+
+ 
+   4 bytes in section .rodata
+ 216 bytes in section .text
+ 
+ 216 bytes of CODE  memory
+   4 bytes of CONST memory
+
+Errors: none
+Warnings: none

@@ -1,0 +1,1093 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:27
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\debug-print\debug-print.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\debug-print\debug-print.c
+#        -D APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"debug-print.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\debug-print\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\debug-print.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\debug-print.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\debug-print\debug-print.c
+      1          // Copyright 2015 Silicon Laboratories, Inc.
+      2          
+      3          #include PLATFORM_HEADER
+      4          #include CONFIGURATION_HEADER
+      5          #include EMBER_AF_API_STACK
+      6          #include EMBER_AF_API_HAL
+      7          #include EMBER_AF_API_SERIAL
+      8          #include EMBER_AF_API_DEBUG_PRINT
+      9          
+     10          // When EMBER_AF_DEBUG_PRINT_USE_PORT is defined, the underlying serial code
+     11          // functions require a port, so one is passed in.
+     12          #ifdef EMBER_AF_DEBUG_PRINT_USE_PORT
+     13            #define emAfWaitSend()            emberSerialWaitSend(APP_SERIAL)
+     14            #define emAfPrintf(...)           emberSerialPrintf(APP_SERIAL, __VA_ARGS__)
+     15            #define emAfPrintfLine(...)       emberSerialPrintfLine(APP_SERIAL, __VA_ARGS__)
+     16            #define emAfPrintCarriageReturn() emberSerialPrintCarriageReturn(APP_SERIAL)
+     17            #define emAfPrintfVarArg(...)     emberSerialPrintfVarArg(APP_SERIAL, __VA_ARGS__)
+     18          #else
+     19            #define emAfWaitSend()            emberSerialWaitSend()
+     20            #define emAfPrintf(...)           emberSerialPrintf(__VA_ARGS__)
+     21            #define emAfPrintfLine(...)       emberSerialPrintfLine(__VA_ARGS__)
+     22            #define emAfPrintCarriageReturn() emberSerialPrintCarriageReturn()
+     23            #define emAfPrintfVarArg(...)     emberSerialPrintfVarArg(__VA_ARGS__)
+     24          #endif
+     25          
+     26          // A internal printing area is a 16-bit value.  The high byte is an index and
+     27          // the low byte is a bitmask.  The index is used to look up a byte and the
+     28          // bitmask is used to check if a single bit in that byte is set.  If it is set,
+     29          // the area is enabled.  Otherwise, the area is diabled.
+     30          #define AREA_INDEX(area)    HIGH_BYTE(area)
+     31          #define AREA_BITMASK(area)  LOW_BYTE(area)
+     32          
+     33          // Areas can be enabled or disabled at runtime.  This is not done using the
+     34          // internal area, but with a user area, which is simply an offset into a zero-
+     35          // indexed array of areas.  The idea is that area names are printed like this:
+     36          //   [0] Core : YES
+     37          //   [1] Debug : no
+     38          //   [2] Applicaion : YES
+     39          //   ...
+     40          // If the user wanted to turn on the "Debug" area, he would call
+     41          // emberAfPrintOn(1), presumably via a CLI command.  The internal area can be
+     42          // reconstructed from the user area through bit magic.
+     43          #define USER_AREA_TO_INTERNAL_AREA(userArea) \
+     44            HIGH_LOW_TO_INT(userArea / 8, BIT(userArea % 8))
+     45          
+
+   \                                 In section .bss, align 2
+     46              uint16_t emberAfPrintActiveArea = 0;
+   \                     emberAfPrintActiveArea:
+   \   00000000                      DS8 2
+     47          
+     48          #ifdef EMBER_AF_PRINT_BITS
+
+   \                                 In section .data, align 1
+     49            static uint8_t bitmasks[] = EMBER_AF_PRINT_BITS;
+   \                     bitmasks:
+   \   00000000   0x03               DC8 3
+     50          
+     51            #define ENABLE(userArea) \
+     52              printEnable(USER_AREA_TO_INTERNAL_AREA(userArea), true);
+     53            #define DISABLE(userArea) \
+     54              printEnable(USER_AREA_TO_INTERNAL_AREA(userArea), false);
+     55            #define ENABLE_ALL() MEMSET(bitmasks, 0xFF, sizeof(bitmasks))
+     56            #define DISABLE_ALL() MEMSET(bitmasks, 0x00, sizeof(bitmasks))
+     57          
+
+   \                                 In section .text, align 2, keep-with-next
+     58            static void printEnable(uint16_t area, bool on)
+     59            {
+     60              uint8_t index = AREA_INDEX(area);
+     61              if (index < sizeof(bitmasks)) {
+   \                     printEnable: (+1)
+   \   00000000   0x0A02             LSRS     R2,R0,#+8
+   \   00000002   0xD108             BNE.N    ??printEnable_0
+     62                uint8_t bitmask = AREA_BITMASK(area);
+     63                if (on) {
+   \   00000004   0x....             LDR.N    R2,??DataTable22_10
+   \   00000006   0x7813             LDRB     R3,[R2, #+0]
+   \   00000008   0xB2C0             UXTB     R0,R0
+   \   0000000A   0x2900             CMP      R1,#+0
+   \   0000000C   0xBF14             ITE      NE 
+   \   0000000E   0x4318             ORRNE    R0,R0,R3
+   \   00000010   0xEA23 0x0000      BICEQ    R0,R3,R0
+     64                  SETBITS(bitmasks[index], bitmask);
+     65                } else {
+     66                  CLEARBITS(bitmasks[index], bitmask);
+   \   00000014   0x7010             STRB     R0,[R2, #+0]
+     67                }
+     68              }
+     69            }
+   \                     ??printEnable_0: (+1)
+   \   00000016   0x4770             BX       LR               ;; return
+     70          #else
+     71            #define ENABLE(userArea)
+     72            #define DISABLE(userArea)
+     73            #define ENABLE_ALL()
+     74            #define DISABLE_ALL()
+     75          #endif
+     76          
+     77          #ifdef EMBER_AF_PRINT_NAMES
+
+   \                                 In section .data, align 4
+     78            static PGM_P names[] = EMBER_AF_PRINT_NAMES;
+   \                     names:
+   \   00000000   0x........         DC32 ?_0, ?_1, 0H
+   \              0x........   
+   \              0x00000000   
+     79          #endif
+     80          
+
+   \                                 In section .text, align 2, keep-with-next
+     81          bool emberAfPrintEnabled(uint16_t area)
+     82          {
+     83            emberAfPrintActiveArea = area;
+   \                     emberAfPrintEnabled: (+1)
+   \   00000000   0x....             LDR.N    R1,??DataTable22_11
+   \   00000002   0x8008             STRH     R0,[R1, #+0]
+     84            if (area == 0xFFFF) {
+   \   00000004   0xF64F 0x71FF      MOVW     R1,#+65535
+   \   00000008   0x4288             CMP      R0,R1
+   \   0000000A   0xD005             BEQ.N    ??emberAfPrintEnabled_0
+     85              return true;
+     86          #ifdef EMBER_AF_PRINT_BITS
+     87            } else {
+     88              uint8_t index = AREA_INDEX(area);
+     89              if (index < sizeof(bitmasks)) {
+   \   0000000C   0x0A01             LSRS     R1,R0,#+8
+   \   0000000E   0xD105             BNE.N    ??emberAfPrintEnabled_1
+     90                uint8_t bitmask = AREA_BITMASK(area);
+     91                return READBITS(bitmasks[index], bitmask);
+   \   00000010   0x....             LDR.N    R1,??DataTable22_10
+   \   00000012   0x7809             LDRB     R1,[R1, #+0]
+   \   00000014   0x4008             ANDS     R0,R0,R1
+   \   00000016   0xD002             BEQ.N    ??emberAfPrintEnabled_2
+   \                     ??emberAfPrintEnabled_0: (+1)
+   \   00000018   0x2001             MOVS     R0,#+1
+   \   0000001A   0x4770             BX       LR
+     92              }
+     93          #endif
+     94            }
+     95            return false;
+   \                     ??emberAfPrintEnabled_1: (+1)
+   \   0000001C   0x2000             MOVS     R0,#+0
+   \                     ??emberAfPrintEnabled_2: (+1)
+   \   0000001E   0x4770             BX       LR               ;; return
+     96          }
+     97          
+
+   \                                 In section .text, align 2, keep-with-next
+     98          void emberAfPrintOn(uint16_t userArea)
+     99          {
+    100            ENABLE(userArea);
+   \                     emberAfPrintOn: (+1)
+   \   00000000   0x08C2             LSRS     R2,R0,#+3
+   \   00000002   0x2101             MOVS     R1,#+1
+   \   00000004   0xF000 0x0007      AND      R0,R0,#0x7
+   \   00000008   0xFA01 0xF000      LSL      R0,R1,R0
+   \   0000000C   0xB2C0             UXTB     R0,R0
+   \   0000000E   0xEB00 0x2002      ADD      R0,R0,R2, LSL #+8
+   \   00000012   0x....             B.N      ?Subroutine0
+    101          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine0: (+1)
+   \   00000000   0xB280             UXTH     R0,R0
+   \   00000002   0x....             B.N      printEnable
+    102          
+
+   \                                 In section .text, align 2, keep-with-next
+    103          void emberAfPrintOff(uint16_t userArea)
+    104          {
+    105            DISABLE(userArea);
+   \                     emberAfPrintOff: (+1)
+   \   00000000   0x08C2             LSRS     R2,R0,#+3
+   \   00000002   0x2301             MOVS     R3,#+1
+   \   00000004   0xF000 0x0007      AND      R0,R0,#0x7
+   \   00000008   0xFA03 0xF000      LSL      R0,R3,R0
+   \   0000000C   0xB2C0             UXTB     R0,R0
+   \   0000000E   0xEB00 0x2002      ADD      R0,R0,R2, LSL #+8
+   \   00000012   0x2100             MOVS     R1,#+0
+   \   00000014                      REQUIRE ?Subroutine0
+   \   00000014                      ;; // Fall through to label ?Subroutine0
+    106          }
+    107          
+
+   \                                 In section .text, align 2, keep-with-next
+    108          void emberAfPrintAllOn(void)
+    109          {
+    110            ENABLE_ALL();
+   \                     emberAfPrintAllOn: (+1)
+   \   00000000   0x2201             MOVS     R2,#+1
+   \   00000002   0x21FF             MOVS     R1,#+255
+   \   00000004   0x....             B.N      ?Subroutine1
+    111          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine1: (+1)
+   \   00000000   0x....             LDR.N    R0,??DataTable22_10
+   \   00000002   0x.... 0x....      B.W      halCommonMemSet
+    112          
+
+   \                                 In section .text, align 2, keep-with-next
+    113          void emberAfPrintAllOff(void)
+    114          {
+    115            DISABLE_ALL();
+   \                     emberAfPrintAllOff: (+1)
+   \   00000000   0x2201             MOVS     R2,#+1
+   \   00000002   0x2100             MOVS     R1,#+0
+   \   00000004                      REQUIRE ?Subroutine1
+   \   00000004                      ;; // Fall through to label ?Subroutine1
+    116          }
+    117          
+
+   \                                 In section .text, align 2, keep-with-next
+    118          void emberAfPrintStatus(void)
+    119          {
+   \                     emberAfPrintStatus: (+1)
+   \   00000000   0xE92D 0x41F0      PUSH     {R4-R8,LR}
+   \   00000004   0xB082             SUB      SP,SP,#+8
+    120          #ifdef EMBER_AF_PRINT_NAMES
+    121            uint8_t i;
+    122            for (i = 0; i < EMBER_AF_PRINT_NAME_NUMBER; i++) {
+   \   00000006   0x2400             MOVS     R4,#+0
+   \   00000008   0x.... 0x....      ADR.W    R5,?_2
+   \   0000000C   0x.... 0x....      LDR.W    R8,??DataTable22_12
+   \   00000010   0x....             ADR.N    R7,??DataTable22  ;; 0x6E, 0x6F, 0x00, 0x00
+   \   00000012   0x....             ADR.N    R6,??DataTable22_1  ;; "YES"
+    123              emAfPrintfLine("[%d] %p : %p",
+    124                             i,
+    125                             names[i],
+    126                             (emberAfPrintEnabled(USER_AREA_TO_INTERNAL_AREA(i))
+    127                              ? "YES"
+    128                              : "no"));
+   \                     ??emberAfPrintStatus_0: (+1)
+   \   00000014   0x10A0             ASRS     R0,R4,#+2
+   \   00000016   0xEB04 0x7050      ADD      R0,R4,R0, LSR #+29
+   \   0000001A   0x10C0             ASRS     R0,R0,#+3
+   \   0000001C   0x2101             MOVS     R1,#+1
+   \   0000001E   0xEBA4 0x02C0      SUB      R2,R4,R0, LSL #+3
+   \   00000022   0x4091             LSLS     R1,R1,R2
+   \   00000024   0xB2C9             UXTB     R1,R1
+   \   00000026   0xEB01 0x2000      ADD      R0,R1,R0, LSL #+8
+   \   0000002A   0xB280             UXTH     R0,R0
+   \   0000002C   0x.... 0x....      BL       emberAfPrintEnabled
+   \   00000030   0x2800             CMP      R0,#+0
+   \   00000032   0xBF14             ITE      NE 
+   \   00000034   0x4630             MOVNE    R0,R6
+   \   00000036   0x4638             MOVEQ    R0,R7
+   \   00000038   0x9000             STR      R0,[SP, #+0]
+   \   0000003A   0x4622             MOV      R2,R4
+   \   0000003C   0xF858 0x3024      LDR      R3,[R8, R4, LSL #+2]
+   \   00000040   0x4629             MOV      R1,R5
+   \   00000042   0x2001             MOVS     R0,#+1
+   \   00000044   0x.... 0x....      BL       emberSerialPrintfLine
+    129              emAfWaitSend();
+   \   00000048   0x2001             MOVS     R0,#+1
+   \   0000004A   0x.... 0x....      BL       emberSerialWaitSend
+    130            }
+   \   0000004E   0x1C64             ADDS     R4,R4,#+1
+   \   00000050   0x2C02             CMP      R4,#+2
+   \   00000052   0xDBDF             BLT.N    ??emberAfPrintStatus_0
+    131          #endif
+    132          }
+   \   00000054   0xE8BD 0x81F3      POP      {R0,R1,R4-R8,PC}  ;; return
+    133          
+    134          #if defined(EMBER_AF_PRINT_AREA_NAME) && defined(EMBER_AF_PRINT_NAMES)
+    135            // If the area is bogus, this may still print a name, but it shouldn't crash.
+    136            static void printAreaName(uint16_t area)
+    137            {
+    138              uint16_t index;
+    139              uint8_t bitmask = AREA_BITMASK(area);
+    140              uint8_t bit;
+    141          
+    142              for (bit = 0; bit < 8; bit++) {
+    143                if (READBIT(bitmask, bit)) {
+    144                  break;
+    145                }
+    146              }
+    147              index = AREA_INDEX(area) * 8 + bit;
+    148          
+    149              if (area != 0xFFFF
+    150                  && index < EMBER_AF_PRINT_NAME_NUMBER) {
+    151                emAfPrintf("%p:", names[index]);
+    152              }
+    153            }
+    154          #else
+    155            #define printAreaName(area)
+    156          #endif
+    157          
+
+   \                                 In section .text, align 2, keep-with-next
+    158          static void printVarArg(uint16_t area,
+    159                                  bool newline,
+    160                                  PGM_P formatString,
+    161                                  va_list args) {
+   \                     printVarArg: (+1)
+   \   00000000   0xB570             PUSH     {R4-R6,LR}
+   \   00000002   0x460C             MOV      R4,R1
+   \   00000004   0x4615             MOV      R5,R2
+   \   00000006   0x461E             MOV      R6,R3
+    162            if (emberAfPrintEnabled(area)) {
+   \   00000008   0x.... 0x....      BL       emberAfPrintEnabled
+   \   0000000C   0xB150             CBZ.N    R0,??printVarArg_0
+    163              printAreaName(area);
+    164              emAfPrintfVarArg(formatString, args);
+   \   0000000E   0x4632             MOV      R2,R6
+   \   00000010   0x4629             MOV      R1,R5
+   \   00000012   0x2001             MOVS     R0,#+1
+   \   00000014   0x.... 0x....      BL       emberSerialPrintfVarArg
+    165              if (newline) {
+   \   00000018   0xB124             CBZ.N    R4,??printVarArg_0
+    166                emAfPrintCarriageReturn();
+   \   0000001A   0xE8BD 0x4070      POP      {R4-R6,LR}
+   \   0000001E   0x2001             MOVS     R0,#+1
+   \   00000020   0x.... 0x....      B.W      emberSerialPrintCarriageReturn
+    167              }
+    168            }
+    169          }
+   \                     ??printVarArg_0: (+1)
+   \   00000024   0xBD70             POP      {R4-R6,PC}       ;; return
+    170          
+
+   \                                 In section .text, align 2, keep-with-next
+    171          void emberAfPrint(uint16_t area, PGM_P formatString, ...)
+    172          {
+   \                     emberAfPrint: (+1)
+   \   00000000   0xB40C             PUSH     {R2,R3}
+   \   00000002   0xB580             PUSH     {R7,LR}
+    173            va_list args;
+    174            va_start(args, formatString);
+    175            printVarArg(area, false, formatString, args);
+   \   00000004   0x460A             MOV      R2,R1
+   \   00000006   0xAB02             ADD      R3,SP,#+8
+   \   00000008   0x2100             MOVS     R1,#+0
+   \   0000000A   0x....             B.N      ?Subroutine2
+    176            va_end(args);
+    177          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine2: (+1)
+   \   00000000   0x.... 0x....      BL       printVarArg
+   \   00000004   0xBC01             POP      {R0}
+   \   00000006   0xF85D 0xFB0C      LDR      PC,[SP], #+12    ;; return
+    178          
+
+   \                                 In section .text, align 2, keep-with-next
+    179          void emberAfPrintln(uint16_t area, PGM_P formatString, ...)
+    180          {
+   \                     emberAfPrintln: (+1)
+   \   00000000   0xB40C             PUSH     {R2,R3}
+   \   00000002   0xB580             PUSH     {R7,LR}
+    181            va_list args;
+    182            va_start(args, formatString);
+    183            printVarArg(area, true, formatString, args);
+   \   00000004   0x460A             MOV      R2,R1
+   \   00000006   0xAB02             ADD      R3,SP,#+8
+   \   00000008   0x2101             MOVS     R1,#+1
+   \   0000000A                      REQUIRE ?Subroutine2
+   \   0000000A                      ;; // Fall through to label ?Subroutine2
+    184            va_end(args);
+    185          }
+    186          
+
+   \                                 In section .text, align 2, keep-with-next
+    187          static void printBuffer(uint16_t area,
+    188                                  const uint8_t *buffer,
+    189                                  uint16_t bufferLen,
+    190                                  PGM_P formatString,
+    191                                  bool reverse)
+    192          {
+   \                     printBuffer: (+1)
+   \   00000000   0xE92D 0x43F8      PUSH     {R3-R9,LR}
+   \   00000004   0x4680             MOV      R8,R0
+   \   00000006   0x460E             MOV      R6,R1
+   \   00000008   0x4617             MOV      R7,R2
+   \   0000000A   0x4699             MOV      R9,R3
+    193            if (emberAfPrintEnabled(area)) {
+   \   0000000C   0x.... 0x....      BL       emberAfPrintEnabled
+   \   00000010   0xB1D8             CBZ.N    R0,??printBuffer_0
+    194              uint16_t i;
+    195              for (i = 0; i < bufferLen; i++) {
+   \   00000012   0x9C08             LDR      R4,[SP, #+32]
+   \   00000014   0x2500             MOVS     R5,#+0
+   \   00000016   0xE010             B.N      ??printBuffer_1
+    196                emberAfPrint(area, formatString, buffer[reverse ? bufferLen - i - 1 : i]);
+   \                     ??printBuffer_2: (+1)
+   \   00000018   0x5D82             LDRB     R2,[R0, R6]
+   \   0000001A   0x4649             MOV      R1,R9
+   \   0000001C   0x4640             MOV      R0,R8
+   \   0000001E   0x.... 0x....      BL       emberAfPrint
+    197                if (i % 16 == 6) {
+   \   00000022   0x10E8             ASRS     R0,R5,#+3
+   \   00000024   0xEB05 0x7010      ADD      R0,R5,R0, LSR #+28
+   \   00000028   0x1100             ASRS     R0,R0,#+4
+   \   0000002A   0xEBA5 0x1000      SUB      R0,R5,R0, LSL #+4
+   \   0000002E   0x2806             CMP      R0,#+6
+   \   00000030   0xBF04             ITT      EQ 
+   \   00000032   0x4640             MOVEQ    R0,R8
+   \   00000034   0x.... 0x....      BLEQ     emberAfFlush
+    198                  emberAfFlush(area);
+   \   00000038   0x1C6D             ADDS     R5,R5,#+1
+   \                     ??printBuffer_1: (+1)
+   \   0000003A   0x42BD             CMP      R5,R7
+   \   0000003C   0xDA05             BGE.N    ??printBuffer_0
+   \   0000003E   0x2C00             CMP      R4,#+0
+   \   00000040   0xBF1A             ITTE     NE 
+   \   00000042   0x1B78             SUBNE    R0,R7,R5
+   \   00000044   0x1E40             SUBNE    R0,R0,#+1
+   \   00000046   0x4628             MOVEQ    R0,R5
+   \   00000048   0xE7E6             B.N      ??printBuffer_2
+    199                }
+    200              }
+    201            }
+    202          }
+   \                     ??printBuffer_0: (+1)
+   \   0000004A   0xE8BD 0x83F1      POP      {R0,R4-R9,PC}    ;; return
+    203          
+
+   \                                 In section .text, align 2, keep-with-next
+    204          void emberAfPrintBuffer(uint16_t area,
+    205                                  const uint8_t *buffer,
+    206                                  uint16_t bufferLen,
+    207                                  bool withSpace)
+    208          {
+   \                     emberAfPrintBuffer: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    209            printBuffer(area,
+    210                        buffer,
+    211                        bufferLen,
+    212                        (withSpace ? "%x " : "%x"),
+    213                        false); // forward
+   \   00000002   0x2B00             CMP      R3,#+0
+   \   00000004   0xB082             SUB      SP,SP,#+8
+   \   00000006   0xBF14             ITE      NE 
+   \   00000008   0x....             ADRNE.N  R3,??DataTable22_2  ;; "%x "
+   \   0000000A   0x....             ADREQ.N  R3,??DataTable22_3  ;; 0x25, 0x78, 0x00, 0x00
+   \   0000000C   0x2400             MOVS     R4,#+0
+   \   0000000E   0x9400             STR      R4,[SP, #+0]
+   \   00000010   0x.... 0x....      BL       printBuffer
+    214          }
+   \   00000014   0xBD13             POP      {R0,R1,R4,PC}    ;; return
+    215          
+
+   \                                 In section .text, align 2, keep-with-next
+    216          void emberAfPrintBigEndianEui64(const EmberEui64 *eui64)
+    217          {
+   \                     emberAfPrintBigEndianEui64: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+    218            emberAfPrint(emberAfPrintActiveArea, ">");
+   \   00000002   0x....             B.N      ?Subroutine3
+    219            printBuffer(emberAfPrintActiveArea,
+    220                        eui64->bytes,
+    221                        EUI64_SIZE,
+    222                        "%x",
+    223                        true); // reverse
+    224          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine3: (+1)
+   \   00000000   0x.... 0x....      BL       ?Subroutine4
+   \                     ??CrossCallReturnLabel_2: (+1)
+   \   00000004   0x....             ADR.N    R1,??DataTable22_5  ;; ">"
+   \   00000006   0x.... 0x....      BL       emberAfPrint
+   \   0000000A   0x2001             MOVS     R0,#+1
+   \   0000000C                      REQUIRE ??Subroutine5_0
+   \   0000000C                      ;; // Fall through to label ??Subroutine5_0
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ??Subroutine5_0: (+1)
+   \   00000000   0x9000             STR      R0,[SP, #+0]
+   \   00000002   0x....             ADR.N    R3,??DataTable22_3  ;; 0x25, 0x78, 0x00, 0x00
+   \   00000004   0x8828             LDRH     R0,[R5, #+0]
+   \   00000006   0x2208             MOVS     R2,#+8
+   \   00000008   0x4621             MOV      R1,R4
+   \   0000000A   0x.... 0x....      BL       printBuffer
+   \   0000000E   0xBD31             POP      {R0,R4,R5,PC}    ;; return
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine4: (+1)
+   \   00000000   0x....             LDR.N    R5,??DataTable22_11
+   \   00000002   0x4604             MOV      R4,R0
+   \   00000004   0x8828             LDRH     R0,[R5, #+0]
+   \   00000006   0x4770             BX       LR
+    225          
+
+   \                                 In section .text, align 2, keep-with-next
+    226          void emberAfPrintLittleEndianEui64(const EmberEui64 *eui64)
+    227          {
+   \                     emberAfPrintLittleEndianEui64: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+    228            emberAfPrint(emberAfPrintActiveArea, "<");
+   \   00000002   0x.... 0x....      BL       ?Subroutine4
+   \                     ??CrossCallReturnLabel_0: (+1)
+   \   00000006   0x....             ADR.N    R1,??DataTable22_4  ;; "<"
+   \   00000008   0x.... 0x....      BL       emberAfPrint
+    229            printBuffer(emberAfPrintActiveArea,
+    230                        eui64->bytes,
+    231                        EUI64_SIZE,
+    232                        "%x",
+    233                        false); // forward
+   \   0000000C   0x2000             MOVS     R0,#+0
+   \   0000000E   0x....             B.N      ??Subroutine5_0
+    234          }
+    235          
+
+   \                                 In section .text, align 2, keep-with-next
+    236          void emberAfPrintExtendedPanId(const uint8_t *extendedPanId)
+    237          {
+   \                     emberAfPrintExtendedPanId: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+    238            emberAfPrint(emberAfPrintActiveArea, ">");
+   \   00000002                      REQUIRE ?Subroutine3
+   \   00000002                      ;; // Fall through to label ?Subroutine3
+    239            printBuffer(emberAfPrintActiveArea,
+    240                        extendedPanId,
+    241                        EXTENDED_PAN_ID_SIZE,
+    242                        "%x",
+    243                        true); // reverse
+    244          }
+    245          
+    246          // This function prints IPv6 fields per the recommendations of RFC5952.  In
+    247          // particular, leading zeros within a field are omitted and lowercase is used
+    248          // for the letters a through f.
+    249          static void printIpv6Field(uint16_t field)
+    250          {
+    251            bool printing = false;
+    252            uint8_t i;
+    253            for (i = 0; i < 4; i++) {
+    254              uint8_t nibble = (uint8_t)(((field << (i * 4)) & 0xF000) >> 12);
+    255              if (printing || nibble != 0 || i == 3) {
+    256                emberAfPrint(emberAfPrintActiveArea,
+    257                             "%c",
+    258                             (nibble + (nibble < 10 ? '0' : 'a' - 10)));
+    259                printing = true;
+    260              }
+    261            }
+    262          }
+    263          
+    264          // This function prints IPv6 addresses per the recommendations of RFC5952.  In
+    265          // particular, the longest run of at least two consecutive zero fields is
+    266          // shortened to ::, with runs closer to the beginning used in case of a tie.
+
+   \                                 In section .text, align 2, keep-with-next
+    267          void emberAfPrintIpv6Fields(const uint8_t *bytes, uint8_t fields)
+    268          {
+   \                     emberAfPrintIpv6Fields: (+1)
+   \   00000000   0xE92D 0x4FF3      PUSH     {R0,R1,R4-R11,LR}
+    269            uint8_t cStart = MAX_INT8U_VALUE, cLength = 0;
+   \   00000004   0x2500             MOVS     R5,#+0
+    270            uint8_t mStart = MAX_INT8U_VALUE, mLength = 0;
+   \   00000006   0x46AB             MOV      R11,R5
+   \   00000008   0xB081             SUB      SP,SP,#+4
+   \   0000000A   0x24FF             MOVS     R4,#+255
+   \   0000000C   0x27FF             MOVS     R7,#+255
+    271            uint8_t i;
+    272            for (i = 0; i < fields; i++) {
+   \   0000000E   0x46D9             MOV      R9,R11
+   \   00000010   0xE00B             B.N      ??emberAfPrintIpv6Fields_0
+    273              uint16_t field = emberFetchHighLowInt16u(bytes + i * 2);
+    274              if (field == 0) {
+    275                if (cStart == MAX_INT8U_VALUE) {
+    276                  cStart = i;
+    277                }
+    278                cLength++;
+    279              } else if (cStart != MAX_INT8U_VALUE) {
+   \                     ??emberAfPrintIpv6Fields_1: (+1)
+   \   00000012   0x2FFF             CMP      R7,#+255
+   \   00000014   0xD007             BEQ.N    ??emberAfPrintIpv6Fields_2
+    280                if (mStart == MAX_INT8U_VALUE || mLength < cLength) {
+   \   00000016   0x2CFF             CMP      R4,#+255
+   \   00000018   0xD001             BEQ.N    ??emberAfPrintIpv6Fields_3
+   \   0000001A   0x45AB             CMP      R11,R5
+   \   0000001C   0xDA01             BGE.N    ??emberAfPrintIpv6Fields_4
+    281                  mStart = cStart;
+   \                     ??emberAfPrintIpv6Fields_3: (+1)
+   \   0000001E   0x463C             MOV      R4,R7
+    282                  mLength = cLength;
+   \   00000020   0x46AB             MOV      R11,R5
+    283                }
+    284                cStart = MAX_INT8U_VALUE;
+   \                     ??emberAfPrintIpv6Fields_4: (+1)
+   \   00000022   0x27FF             MOVS     R7,#+255
+    285                cLength = 0;
+   \   00000024   0x2500             MOVS     R5,#+0
+    286              }
+   \                     ??emberAfPrintIpv6Fields_2: (+1)
+   \   00000026   0xF109 0x0901      ADD      R9,R9,#+1
+   \                     ??emberAfPrintIpv6Fields_0: (+1)
+   \   0000002A   0xF89D 0x0008      LDRB     R0,[SP, #+8]
+   \   0000002E   0x4581             CMP      R9,R0
+   \   00000030   0xB2ED             UXTB     R5,R5
+   \   00000032   0xB2FF             UXTB     R7,R7
+   \   00000034   0xDA0B             BGE.N    ??emberAfPrintIpv6Fields_5
+   \   00000036   0x9801             LDR      R0,[SP, #+4]
+   \   00000038   0xEB00 0x0049      ADD      R0,R0,R9, LSL #+1
+   \   0000003C   0x.... 0x....      BL       emberFetchHighLowInt16u
+   \   00000040   0x2800             CMP      R0,#+0
+   \   00000042   0xD1E6             BNE.N    ??emberAfPrintIpv6Fields_1
+   \   00000044   0x2FFF             CMP      R7,#+255
+   \   00000046   0xBF08             IT       EQ 
+   \   00000048   0x464F             MOVEQ    R7,R9
+   \   0000004A   0x1C6D             ADDS     R5,R5,#+1
+   \   0000004C   0xE7EB             B.N      ??emberAfPrintIpv6Fields_2
+    287            }
+    288            if (cStart != MAX_INT8U_VALUE
+    289                && (mStart == MAX_INT8U_VALUE || mLength < cLength)) {
+   \                     ??emberAfPrintIpv6Fields_5: (+1)
+   \   0000004E   0x2FFF             CMP      R7,#+255
+   \   00000050   0xD005             BEQ.N    ??emberAfPrintIpv6Fields_6
+   \   00000052   0x2CFF             CMP      R4,#+255
+   \   00000054   0xD001             BEQ.N    ??emberAfPrintIpv6Fields_7
+   \   00000056   0x45AB             CMP      R11,R5
+   \   00000058   0xDA01             BGE.N    ??emberAfPrintIpv6Fields_6
+    290              mStart = cStart;
+   \                     ??emberAfPrintIpv6Fields_7: (+1)
+   \   0000005A   0x463C             MOV      R4,R7
+    291              mLength = cLength;
+   \   0000005C   0x46AB             MOV      R11,R5
+    292            }
+    293            if (mLength == 1) {
+   \                     ??emberAfPrintIpv6Fields_6: (+1)
+   \   0000005E   0xF1BB 0x0F01      CMP      R11,#+1
+   \   00000062   0xBF08             IT       EQ 
+   \   00000064   0x24FF             MOVEQ    R4,#+255
+    294              mStart = MAX_INT8U_VALUE;
+    295            }
+    296          
+    297            for (i = 0; i < fields; i++) {
+   \   00000066   0xF04F 0x0800      MOV      R8,#+0
+   \   0000006A   0x44A3             ADD      R11,R11,R4
+   \   0000006C   0x....             ADR.N    R7,??DataTable22_6  ;; 0x25, 0x63, 0x00, 0x00
+   \   0000006E   0x....             LDR.N    R5,??DataTable22_11
+   \   00000070   0x.... 0x....      ADR.W    R9,??DataTable22_7  ;; ":"
+   \   00000074   0xE006             B.N      ??emberAfPrintIpv6Fields_8
+    298              if (i < mStart || mStart + mLength <= i) {
+    299                uint16_t field = emberFetchHighLowInt16u(bytes + i * 2);
+    300                if (i != 0) {
+    301                  emberAfPrint(emberAfPrintActiveArea, ":");
+    302                }
+    303                printIpv6Field(field);
+    304              } else if (mStart == i) {
+   \                     ??emberAfPrintIpv6Fields_9: (+1)
+   \   00000076   0x4544             CMP      R4,R8
+   \   00000078   0xBF04             ITT      EQ 
+   \   0000007A   0x4649             MOVEQ    R1,R9
+   \   0000007C   0x.... 0x....      BLEQ     emberAfPrint
+    305                emberAfPrint(emberAfPrintActiveArea, ":");
+   \                     ??emberAfPrintIpv6Fields_10: (+1)
+   \   00000080   0xF108 0x0801      ADD      R8,R8,#+1
+   \                     ??emberAfPrintIpv6Fields_8: (+1)
+   \   00000084   0xF89D 0x1008      LDRB     R1,[SP, #+8]
+   \   00000088   0x8828             LDRH     R0,[R5, #+0]
+   \   0000008A   0x4588             CMP      R8,R1
+   \   0000008C   0xDA2C             BGE.N    ??emberAfPrintIpv6Fields_11
+   \   0000008E   0x45A0             CMP      R8,R4
+   \   00000090   0xDB01             BLT.N    ??emberAfPrintIpv6Fields_12
+   \   00000092   0x45D8             CMP      R8,R11
+   \   00000094   0xDBEF             BLT.N    ??emberAfPrintIpv6Fields_9
+   \                     ??emberAfPrintIpv6Fields_12: (+1)
+   \   00000096   0x9801             LDR      R0,[SP, #+4]
+   \   00000098   0xEB00 0x0048      ADD      R0,R0,R8, LSL #+1
+   \   0000009C   0x.... 0x....      BL       emberFetchHighLowInt16u
+   \   000000A0   0xF1B8 0x0F00      CMP      R8,#+0
+   \   000000A4   0x4682             MOV      R10,R0
+   \   000000A6   0xD003             BEQ.N    ??emberAfPrintIpv6Fields_13
+   \   000000A8   0x8828             LDRH     R0,[R5, #+0]
+   \   000000AA   0x4649             MOV      R1,R9
+   \   000000AC   0x.... 0x....      BL       emberAfPrint
+   \                     ??emberAfPrintIpv6Fields_13: (+1)
+   \   000000B0   0x2000             MOVS     R0,#+0
+   \   000000B2   0x2600             MOVS     R6,#+0
+   \                     ??emberAfPrintIpv6Fields_14: (+1)
+   \   000000B4   0x00B1             LSLS     R1,R6,#+2
+   \   000000B6   0xFA0A 0xF101      LSL      R1,R10,R1
+   \   000000BA   0x1309             ASRS     R1,R1,#+12
+   \   000000BC   0xF001 0x010F      AND      R1,R1,#0xF
+   \   000000C0   0x2800             CMP      R0,#+0
+   \   000000C2   0xBF08             IT       EQ 
+   \   000000C4   0x2900             CMPEQ    R1,#+0
+   \   000000C6   0xD101             BNE.N    ??emberAfPrintIpv6Fields_15
+   \   000000C8   0x2E03             CMP      R6,#+3
+   \   000000CA   0xD109             BNE.N    ??emberAfPrintIpv6Fields_16
+   \                     ??emberAfPrintIpv6Fields_15: (+1)
+   \   000000CC   0x290A             CMP      R1,#+10
+   \   000000CE   0xBFB4             ITE      LT 
+   \   000000D0   0x2030             MOVLT    R0,#+48
+   \   000000D2   0x2057             MOVGE    R0,#+87
+   \   000000D4   0x1842             ADDS     R2,R0,R1
+   \   000000D6   0x8828             LDRH     R0,[R5, #+0]
+   \   000000D8   0x4639             MOV      R1,R7
+   \   000000DA   0x.... 0x....      BL       emberAfPrint
+   \   000000DE   0x2001             MOVS     R0,#+1
+   \                     ??emberAfPrintIpv6Fields_16: (+1)
+   \   000000E0   0x1C76             ADDS     R6,R6,#+1
+   \   000000E2   0x2E04             CMP      R6,#+4
+   \   000000E4   0xDBE6             BLT.N    ??emberAfPrintIpv6Fields_14
+   \   000000E6   0xE7CB             B.N      ??emberAfPrintIpv6Fields_10
+    306              }
+    307            }
+    308            if (mStart + mLength == fields) {
+   \                     ??emberAfPrintIpv6Fields_11: (+1)
+   \   000000E8   0x458B             CMP      R11,R1
+   \   000000EA   0xD104             BNE.N    ??emberAfPrintIpv6Fields_17
+    309              emberAfPrint(emberAfPrintActiveArea, ":");
+   \   000000EC   0x4649             MOV      R1,R9
+   \   000000EE   0xB003             ADD      SP,SP,#+12
+   \   000000F0   0xE8BD 0x4FF0      POP      {R4-R11,LR}
+   \   000000F4   0x....             B.N      emberAfPrint
+    310            }
+    311          }
+   \                     ??emberAfPrintIpv6Fields_17: (+1)
+   \   000000F6   0xE8BD 0x8FF7      POP      {R0-R2,R4-R11,PC}  ;; return
+    312          
+
+   \                                 In section .text, align 2, keep-with-next
+    313          void emberAfPrintIpv6Address(const EmberIpv6Address *address)
+    314          {
+    315            emberAfPrintIpv6Fields(address->bytes, sizeof(EmberIpv6Address) / 2);
+   \                     emberAfPrintIpv6Address: (+1)
+   \   00000000   0x2108             MOVS     R1,#+8
+   \   00000002   0x....             B.N      emberAfPrintIpv6Fields
+    316          }
+    317          
+
+   \                                 In section .text, align 2, keep-with-next
+    318          void emberAfPrintIpv6Prefix(const EmberIpv6Prefix *prefix)
+    319          {
+    320            emberAfPrintIpv6Fields(prefix->bytes, sizeof(EmberIpv6Prefix) / 2);
+   \                     emberAfPrintIpv6Prefix: (+1)
+   \   00000000   0x2104             MOVS     R1,#+4
+   \   00000002   0x....             B.N      emberAfPrintIpv6Fields
+    321          }
+    322          
+
+   \                                 In section .text, align 2, keep-with-next
+    323          void emberAfPrintZigbeeKey(const uint8_t *key)
+    324          {
+   \                     emberAfPrintZigbeeKey: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+    325            // ZigBee keys are 16 bytes.
+    326            emberAfPrintBuffer(emberAfPrintActiveArea, key, 8, true);
+   \   00000002   0x.... 0x....      BL       ?Subroutine4
+   \                     ??CrossCallReturnLabel_1: (+1)
+   \   00000006   0x2301             MOVS     R3,#+1
+   \   00000008   0x2208             MOVS     R2,#+8
+   \   0000000A   0x4621             MOV      R1,R4
+   \   0000000C   0x.... 0x....      BL       emberAfPrintBuffer
+    327            emberAfPrint(emberAfPrintActiveArea, " ");
+   \   00000010   0x8828             LDRH     R0,[R5, #+0]
+   \   00000012   0x....             ADR.N    R1,??DataTable22_8  ;; " "
+   \   00000014   0x.... 0x....      BL       emberAfPrint
+    328            emberAfPrintBuffer(emberAfPrintActiveArea, key + 8, 8, true);
+   \   00000018   0x8828             LDRH     R0,[R5, #+0]
+   \   0000001A   0x2301             MOVS     R3,#+1
+   \   0000001C   0x2208             MOVS     R2,#+8
+   \   0000001E   0xF104 0x0108      ADD      R1,R4,#+8
+   \   00000022   0x.... 0x....      BL       emberAfPrintBuffer
+    329            emberAfPrintln(emberAfPrintActiveArea, "");
+   \   00000026   0x8828             LDRH     R0,[R5, #+0]
+   \   00000028   0xE8BD 0x4034      POP      {R2,R4,R5,LR}
+   \   0000002C   0x....             ADR.N    R1,??DataTable22_9  ;; ""
+   \   0000002E   0x....             B.N      emberAfPrintln
+    330          }
+    331          
+
+   \                                 In section .text, align 2, keep-with-next
+    332          void emberAfFlush(uint16_t area)
+    333          {
+   \                     emberAfFlush: (+1)
+   \   00000000   0xB580             PUSH     {R7,LR}
+    334            if (emberAfPrintEnabled(area)) {
+   \   00000002   0x.... 0x....      BL       emberAfPrintEnabled
+   \   00000006   0xB120             CBZ.N    R0,??emberAfFlush_0
+    335              emAfWaitSend();
+   \   00000008   0xE8BD 0x4002      POP      {R1,LR}
+   \   0000000C   0x2001             MOVS     R0,#+1
+   \   0000000E   0x.... 0x....      B.W      emberSerialWaitSend
+    336            }
+    337          }
+   \                     ??emberAfFlush_0: (+1)
+   \   00000012   0xBD01             POP      {R0,PC}          ;; return
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22:
+   \   00000000   0x6E 0x6F          DC8      0x6E, 0x6F, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_1:
+   \   00000000   0x59 0x45          DC8      "YES"
+   \              0x53 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_2:
+   \   00000000   0x25 0x78          DC8      "%x "
+   \              0x20 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_3:
+   \   00000000   0x25 0x78          DC8      0x25, 0x78, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_4:
+   \   00000000   0x3C 0x00          DC8      "<",0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_5:
+   \   00000000   0x3E 0x00          DC8      ">",0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_6:
+   \   00000000   0x25 0x63          DC8      0x25, 0x63, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_7:
+   \   00000000   0x3A 0x00          DC8      ":",0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_8:
+   \   00000000   0x20 0x00          DC8      " ",0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_9:
+   \   00000000   0x00 0x00          DC8      "",0x0,0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_10:
+   \   00000000   0x........         DC32     bitmasks
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_11:
+   \   00000000   0x........         DC32     emberAfPrintActiveArea
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable22_12:
+   \   00000000   0x........         DC32     names
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_0:
+   \   00000000   0x43 0x6F          DC8 "Core"
+   \              0x72 0x65    
+   \              0x00         
+   \   00000005   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x41 0x70          DC8 "Application"
+   \              0x70 0x6C    
+   \              0x69 0x63    
+   \              0x61 0x74    
+   \              0x69 0x6F    
+   \              0x6E 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_3:
+   \   00000000   0x59 0x45          DC8 "YES"
+   \              0x53 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x5B 0x25          DC8 "[%d] %p : %p"
+   \              0x64 0x5D    
+   \              0x20 0x25    
+   \              0x70 0x20    
+   \              0x3A 0x20    
+   \              0x25 0x70    
+   \              0x00         
+   \   0000000D   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_4:
+   \   00000000   0x6E 0x6F          DC8 "no"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_5:
+   \   00000000   0x25 0x78          DC8 "%x "
+   \              0x20 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_6:
+   \   00000000   0x25 0x78          DC8 "%x"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 2, keep-with-next
+   \                     ?_7:
+   \   00000000   0x3E 0x00          DC8 ">"
+
+   \                                 In section .rodata, align 2, keep-with-next
+   \                     ?_8:
+   \   00000000   0x3C 0x00          DC8 "<"
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_9:
+   \   00000000   0x25 0x63          DC8 "%c"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 2, keep-with-next
+   \                     ?_10:
+   \   00000000   0x3A 0x00          DC8 ":"
+
+   \                                 In section .rodata, align 2, keep-with-next
+   \                     ?_11:
+   \   00000000   0x20 0x00          DC8 " "
+
+   \                                 In section .rodata, align 1, keep-with-next
+   \                     ?_12:
+   \   00000000   0x00               DC8 ""
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   emberAfFlush
+         8   -> emberAfPrintEnabled
+         0   -> emberSerialWaitSend
+      16   emberAfPrint
+        16   -> printVarArg
+       0   emberAfPrintAllOff
+         0   -> halCommonMemSet
+       0   emberAfPrintAllOn
+         0   -> halCommonMemSet
+      16   emberAfPrintBigEndianEui64
+        16   -> emberAfPrint
+        16   -> printBuffer
+      16   emberAfPrintBuffer
+        16   -> printBuffer
+       0   emberAfPrintEnabled
+       0   emberAfPrintExtendedPanId
+        16   -> emberAfPrint
+        16   -> printBuffer
+       0   emberAfPrintIpv6Address
+         0   -> emberAfPrintIpv6Fields
+      48   emberAfPrintIpv6Fields
+         0   -> emberAfPrint
+        48   -> emberAfPrint
+        48   -> emberFetchHighLowInt16u
+       0   emberAfPrintIpv6Prefix
+         0   -> emberAfPrintIpv6Fields
+      16   emberAfPrintLittleEndianEui64
+        16   -> emberAfPrint
+        16   -> printBuffer
+       0   emberAfPrintOff
+         0   -> printEnable
+       0   emberAfPrintOn
+         0   -> printEnable
+      32   emberAfPrintStatus
+        32   -> emberAfPrintEnabled
+        32   -> emberSerialPrintfLine
+        32   -> emberSerialWaitSend
+      16   emberAfPrintZigbeeKey
+        16   -> emberAfPrint
+        16   -> emberAfPrintBuffer
+         0   -> emberAfPrintln
+      16   emberAfPrintln
+        16   -> printVarArg
+      32   printBuffer
+        32   -> emberAfPrint
+        32   -> emberAfPrintEnabled
+       0   printEnable
+      16   printVarArg
+        16   -> emberAfPrintEnabled
+         0   -> emberSerialPrintCarriageReturn
+        16   -> emberSerialPrintfVarArg
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable22
+       4  ??DataTable22_1
+       4  ??DataTable22_10
+       4  ??DataTable22_11
+       4  ??DataTable22_12
+       4  ??DataTable22_2
+       4  ??DataTable22_3
+       4  ??DataTable22_4
+       4  ??DataTable22_5
+       4  ??DataTable22_6
+       4  ??DataTable22_7
+       4  ??DataTable22_8
+       4  ??DataTable22_9
+      16  ??Subroutine5_0
+       4  ?Subroutine0
+       6  ?Subroutine1
+      10  ?Subroutine2
+      12  ?Subroutine3
+       8  ?Subroutine4
+       8  ?_0
+      12  ?_1
+       2  ?_10
+       2  ?_11
+       1  ?_12
+      16  ?_2
+       4  ?_3
+       4  ?_4
+       4  ?_5
+       4  ?_6
+       2  ?_7
+       2  ?_8
+       4  ?_9
+       1  bitmasks
+      20  emberAfFlush
+      12  emberAfPrint
+       2  emberAfPrintActiveArea
+       4  emberAfPrintAllOff
+       6  emberAfPrintAllOn
+       4  emberAfPrintBigEndianEui64
+      22  emberAfPrintBuffer
+      32  emberAfPrintEnabled
+       2  emberAfPrintExtendedPanId
+       4  emberAfPrintIpv6Address
+     250  emberAfPrintIpv6Fields
+       4  emberAfPrintIpv6Prefix
+      16  emberAfPrintLittleEndianEui64
+      20  emberAfPrintOff
+      20  emberAfPrintOn
+      88  emberAfPrintStatus
+      48  emberAfPrintZigbeeKey
+      10  emberAfPrintln
+      12  names
+      78  printBuffer
+      24  printEnable
+      38  printVarArg
+
+ 
+   2 bytes in section .bss
+  13 bytes in section .data
+  49 bytes in section .rodata
+ 826 bytes in section .text
+ 
+ 826 bytes of CODE  memory
+  49 bytes of CONST memory
+  15 bytes of DATA  memory
+
+Errors: none
+Warnings: none

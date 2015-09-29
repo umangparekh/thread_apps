@@ -1,0 +1,1171 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project>
+  <fileVersion>2</fileVersion>
+  <fileChecksum>2661116027</fileChecksum>
+  <configuration>
+    <name>Normal</name>
+    <outputs>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\adc.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\debug-print\debug-print.c</file>
+      <file>$PROJ_DIR$\thread-callback-stubs.c</file>
+      <file>$PROJ_DIR$\thread-events.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader-interface.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\address-configuration-debug\address-configuration-debug.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\button.c</file>
+      <file>$PROJ_DIR$\..\util\serial\command-interpreter2.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\dhcp-client\dhcp-client.c</file>
+      <file>$PROJ_DIR$\client-implementation.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\buzzer.c</file>
+      <file>$PROJ_DIR$\..\util\serial\command-interpreter2-error.c</file>
+      <file>$PROJ_DIR$\thread-callbacks.c</file>
+      <file>$PROJ_DIR$\thread-cli.c</file>
+      <file>$PROJ_DIR$\..\util\serial\command-interpreter2-util.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\cli\cli.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader-interface-app.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\coap-cli\coap-cli.c</file>
+      <file>$PROJ_DIR$\thread-bookkeeping.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\diagnostic.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\assert-crash-handlers.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\mem-util.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\cdc\callbacks.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\global-address-prefix-debug\global-address-prefix-debug.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbdch9.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\isr-stubs.s79</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbd.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbdep.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\mfg-token.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbhal.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\cstartup-common.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbint.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbtimer.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\endian.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\crc.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\faults.s79</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\uart.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\sleep.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\token-def.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\icmp-debug\icmp-debug.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\idle-sleep\idle-sleep.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\slaac-client\slaac-client.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\sim-eeprom.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\random.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\mpu.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro-common.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\led.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\network-management-cli\network-management-cli.c</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\token.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\icmp-cli\icmp-cli.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\heartbeat\heartbeat.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\scan-debug\scan-debug.c</file>
+      <file>$PROJ_DIR$\..\thread\plugin\main\main.c</file>
+      <file>$PROJ_DIR$\..\util\serial\serial-printf.c</file>
+      <file>$PROJ_DIR$\..\util\serial\serial.c</file>
+      <file>$PROJ_DIR$\..\..\build\mfglib-library-cortexm3-iar-em3588-em3xx\mfglib-library.a</file>
+      <file>$PROJ_DIR$\..\thread\plugin\udp-cli\udp-cli.c</file>
+      <file>$PROJ_DIR$\..\..\build\sim-eeprom1-library-cortexm3-iar-em3588-em3xx\sim-eeprom1-library.a</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\adc.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\em35x\em3588\regs-internal.h</file>
+      <file>$PROJ_DIR$\build\obj\ember-ip-configuration.pbi</file>
+      <file>$PROJ_DIR$\..\..\stack\config\ember-ip-configuration.c</file>
+      <file>$PROJ_DIR$\build\exe\Thread_Sample_Client.out</file>
+      <file>$PROJ_DIR$\..\..\build\hal-library-cortexm3-iar-em3588-em3xx\hal-library.a</file>
+      <file>$PROJ_DIR$\build\exe\Thread_Sample_Client.s37</file>
+      <file>$PROJ_DIR$\..\util\bootload\tftp-bootloader\tftp-bootloader-15-4.c</file>
+      <file>$PROJ_DIR$\..\util\bootload\tftp\tftp-15-4.c</file>
+      <file>$PROJ_DIR$\build\obj\udp-cli.pbi</file>
+      <file>$PROJ_DIR$\..\thread\plugin\tftp-bootload-target\tftp-bootload.c</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$PROJ_DIR$\..\util\bootload\tftp-bootloader\server\tftp-bootloader-server.c</file>
+      <file>$PROJ_DIR$\..\..\stack\include\error-def.h</file>
+      <file>$PROJ_DIR$\..\..\build\thread-stack-cortexm3-iar-em3588-em3xx\thread-stack.a</file>
+      <file>$PROJ_DIR$\..\thread\plugin\version-debug\version-debug.c</file>
+      <file>$PROJ_DIR$\..\util\bootload\tftp\tftp.c</file>
+      <file>$PROJ_DIR$\..\util\bootload\tftp-bootloader\tftp-bootloader.c</file>
+      <file>$PROJ_DIR$\..\util\bootload\tftp\server\tftp-server.c</file>
+      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+      <file>$PROJ_DIR$\build\obj\tftp-server.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\nvic-config.h</file>
+      <file>$PROJ_DIR$\..\..\stack\include\error.h</file>
+      <file>$PROJ_DIR$\build\obj\Thread_Sample_Client.pbd</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdarg.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\em35x\regs.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\em35x\em3588\regs.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\adc.h</file>
+      <file>$PROJ_DIR$\build\obj\tftp.pbi</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\compiler\iar.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro-common.h</file>
+      <file>$PROJ_DIR$\build\obj\version-debug.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\em35x\em3588\micro-features.h</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootloader.pbi</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\compiler\platform-common.h</file>
+      <file>$PROJ_DIR$\build\obj\coap-cli.pbi</file>
+      <file>$PROJ_DIR$\build\obj\thread-callback-stubs.pbi</file>
+      <file>$PROJ_DIR$\build\obj\callbacks.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro-features.h</file>
+      <file>$PROJ_DIR$\build\obj\thread-cli.pbi</file>
+      <file>$PROJ_DIR$\build\obj\thread-bookkeeping.pbi</file>
+      <file>$PROJ_DIR$\build\obj\micro.pbi</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\micro-common.h</file>
+      <file>$PROJ_DIR$\build\obj\debug-print.pbi</file>
+      <file>$PROJ_DIR$\build\obj\assert-crash-handlers.pbi</file>
+      <file>$PROJ_DIR$\build\obj\mpu.pbi</file>
+      <file>$PROJ_DIR$\build\obj\em_usbhal.pbi</file>
+      <file>$PROJ_DIR$\build\obj\em_usbdch9.pbi</file>
+      <file>$PROJ_DIR$\build\obj\endian.pbi</file>
+      <file>$PROJ_DIR$\build\obj\em_usbtimer.pbi</file>
+      <file>$PROJ_DIR$\build\obj\micro-common.pbi</file>
+      <file>$PROJ_DIR$\build\obj\dhcp-client.pbi</file>
+      <file>$PROJ_DIR$\build\obj\command-interpreter2-error.pbi</file>
+      <file>$PROJ_DIR$\build\obj\crc.pbi</file>
+      <file>$PROJ_DIR$\build\obj\mfg-token.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+      <file>$PROJ_DIR$\build\obj\em_usbdep.pbi</file>
+      <file>$PROJ_DIR$\build\obj\em_usbint.pbi</file>
+      <file>$PROJ_DIR$\build\obj\mem-util.pbi</file>
+      <file>$PROJ_DIR$\build\obj\global-address-prefix-debug.pbi</file>
+      <file>$PROJ_DIR$\build\obj\diagnostic.pbi</file>
+      <file>$PROJ_DIR$\build\obj\buzzer.o</file>
+      <file>$PROJ_DIR$\build\obj\uart.pbi</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootload.pbi</file>
+      <file>$PROJ_DIR$\build\obj\command-interpreter2-util.pbi</file>
+      <file>$PROJ_DIR$\build\obj\thread-callbacks.pbi</file>
+      <file>$PROJ_DIR$\build\obj\icmp-cli.pbi</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootloader-server.pbi</file>
+      <file>$PROJ_DIR$\build\obj\command-interpreter2.pbi</file>
+      <file>$PROJ_DIR$\build\obj\cstartup-common.pbi</file>
+      <file>$PROJ_DIR$\build\obj\tftp-15-4.pbi</file>
+      <file>$PROJ_DIR$\build\obj\heartbeat.pbi</file>
+      <file>$PROJ_DIR$\build\obj\thread-events.pbi</file>
+      <file>$PROJ_DIR$\build\obj\network-management-cli.pbi</file>
+      <file>$PROJ_DIR$\build\obj\led.pbi</file>
+      <file>$PROJ_DIR$\build\obj\serial.pbi</file>
+      <file>$PROJ_DIR$\build\obj\thread-callbacks.o</file>
+      <file>$PROJ_DIR$\build\obj\token-def.pbi</file>
+      <file>$PROJ_DIR$\build\obj\idle-sleep.pbi</file>
+      <file>$PROJ_DIR$\build\obj\sleep.pbi</file>
+      <file>$PROJ_DIR$\build\obj\random.pbi</file>
+      <file>$PROJ_DIR$\build\obj\sim-eeprom.pbi</file>
+      <file>$PROJ_DIR$\build\obj\scan-debug.pbi</file>
+      <file>$PROJ_DIR$\build\obj\icmp-debug.pbi</file>
+      <file>$PROJ_DIR$\build\obj\token.pbi</file>
+      <file>$PROJ_DIR$\build\obj\slaac-client.pbi</file>
+      <file>$PROJ_DIR$\build\obj\em_usbd.pbi</file>
+      <file>$PROJ_DIR$\build\obj\debug-print.o</file>
+      <file>$PROJ_DIR$\build\obj\serial-printf.pbi</file>
+      <file>$PROJ_DIR$\build\obj\main.pbi</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootloader-15-4.pbi</file>
+      <file>$PROJ_DIR$\build\obj\global-address-prefix-debug.o</file>
+      <file>$PROJ_DIR$\build\obj\serial-printf.o</file>
+      <file>$PROJ_DIR$\build\obj\command-interpreter2-error.o</file>
+      <file>$PROJ_DIR$\build\obj\client-implementation.pbi</file>
+      <file>$PROJ_DIR$\build\obj\udp-cli.o</file>
+      <file>$PROJ_DIR$\build\obj\tftp-server.o</file>
+      <file>$PROJ_DIR$\build\obj\ember-ip-configuration.o</file>
+      <file>$PROJ_DIR$\build\obj\bootloader-interface.o</file>
+      <file>$PROJ_DIR$\build\obj\command-interpreter2.o</file>
+      <file>$PROJ_DIR$\build\obj\command-interpreter2-util.o</file>
+      <file>$PROJ_DIR$\build\obj\button.o</file>
+      <file>$PROJ_DIR$\build\obj\thread-bookkeeping.o</file>
+      <file>$PROJ_DIR$\build\obj\coap-cli.o</file>
+      <file>$PROJ_DIR$\build\obj\buzzer.pbi</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootloader.o</file>
+      <file>$PROJ_DIR$\build\obj\cli.o</file>
+      <file>$PROJ_DIR$\build\obj\tftp.o</file>
+      <file>$PROJ_DIR$\build\obj\scan-debug.o</file>
+      <file>$PROJ_DIR$\build\obj\client-implementation.o</file>
+      <file>$PROJ_DIR$\build\obj\tftp-15-4.o</file>
+      <file>$PROJ_DIR$\build\obj\thread-cli.o</file>
+      <file>$PROJ_DIR$\build\obj\diagnostic.o</file>
+      <file>$PROJ_DIR$\build\obj\faults.o</file>
+      <file>$PROJ_DIR$\build\obj\network-management-cli.o</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootload.o</file>
+      <file>$PROJ_DIR$\build\obj\thread-callback-stubs.o</file>
+      <file>$PROJ_DIR$\build\obj\adc.o</file>
+      <file>$PROJ_DIR$\build\obj\bootloader-interface-app.o</file>
+      <file>$PROJ_DIR$\build\obj\thread-events.o</file>
+      <file>$PROJ_DIR$\build\obj\dhcp-client.o</file>
+      <file>$PROJ_DIR$\build\obj\address-configuration-debug.o</file>
+      <file>$PROJ_DIR$\build\obj\serial.o</file>
+      <file>$PROJ_DIR$\build\obj\crc.o</file>
+      <file>$PROJ_DIR$\build\obj\slaac-client.o</file>
+      <file>$PROJ_DIR$\build\obj\token.o</file>
+      <file>$PROJ_DIR$\build\obj\assert-crash-handlers.o</file>
+      <file>$PROJ_DIR$\build\obj\callbacks.o</file>
+      <file>$PROJ_DIR$\build\obj\em_usbdep.o</file>
+      <file>$PROJ_DIR$\build\obj\main.o</file>
+      <file>$PROJ_DIR$\build\obj\address-configuration-debug.pbi</file>
+      <file>$PROJ_DIR$\build\obj\bootloader-interface.pbi</file>
+      <file>$PROJ_DIR$\build\obj\sleep.o</file>
+      <file>$PROJ_DIR$\build\obj\random.o</file>
+      <file>$PROJ_DIR$\build\obj\em_usbint.o</file>
+      <file>$PROJ_DIR$\build\obj\adc.pbi</file>
+      <file>$PROJ_DIR$\build\obj\em_usbhal.o</file>
+      <file>$PROJ_DIR$\build\obj\uart.o</file>
+      <file>$PROJ_DIR$\build\obj\token-def.o</file>
+      <file>$PROJ_DIR$\build\obj\isr-stubs.o</file>
+      <file>$PROJ_DIR$\build\obj\bootloader-interface-app.pbi</file>
+      <file>$PROJ_DIR$\build\obj\cli.pbi</file>
+      <file>$PROJ_DIR$\build\obj\micro.o</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootloader-server.o</file>
+      <file>$PROJ_DIR$\build\obj\em_usbd.o</file>
+      <file>$PROJ_DIR$\build\obj\version-debug.o</file>
+      <file>$PROJ_DIR$\build\obj\idle-sleep.o</file>
+      <file>$PROJ_DIR$\build\obj\led.o</file>
+      <file>$PROJ_DIR$\build\obj\sim-eeprom.o</file>
+      <file>$PROJ_DIR$\build\obj\tftp-bootloader-15-4.o</file>
+      <file>$PROJ_DIR$\build\obj\button.pbi</file>
+      <file>$PROJ_DIR$\build\obj\cstartup-common.o</file>
+      <file>$PROJ_DIR$\build\obj\em_usbtimer.o</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader\fib-bootloader.h</file>
+      <file>$PROJ_DIR$\build\obj\em_usbdch9.o</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader\ebl.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\micro.h</file>
+      <file>$PROJ_DIR$\build\obj\mem-util.o</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\crc.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader\bootloader-common.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\serial.h</file>
+      <file>$PROJ_DIR$\thread-debug-print.h</file>
+      <file>$PROJ_DIR$\..\..\hal\hal.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\random.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\bootloader-interface.h</file>
+      <file>$PROJ_DIR$\build\obj\heartbeat.o</file>
+      <file>$PROJ_DIR$\build\obj\mpu.o</file>
+      <file>$PROJ_DIR$\build\obj\endian.o</file>
+      <file>$PROJ_DIR$\build\obj\icmp-cli.o</file>
+      <file>$PROJ_DIR$\build\obj\icmp-debug.o</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\led.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\buzzer.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\token.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\token-manufacturing.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\system-timer.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\memmap.h</file>
+      <file>$PROJ_DIR$\build\obj\mfg-token.o</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\reset-def.h</file>
+      <file>$PROJ_DIR$\thread-configuration.h</file>
+      <file>$PROJ_DIR$\..\..\stack\config\ember-configuration-defaults.h</file>
+      <file>$PROJ_DIR$\build\obj\micro-common.o</file>
+      <file>$PROJ_DIR$\..\..\stack\config\token-phy.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\em35x\em3588\memmap.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\micro-types.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\generic\em2xx-reset-defs.h</file>
+      <file>$PROJ_DIR$\..\..\stack\include\ember-types.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\symbol-timer.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro.h</file>
+      <file>$PROJ_DIR$\thread-board.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\memmap-fat.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\spi.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\bootloader-interface-standalone.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\bootloader-eeprom.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader\bootloader-ccm.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\token.h</file>
+      <file>$PROJ_DIR$\..\..\stack\config\token-stack.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\button.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\endian.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\mfg-token.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\bootloader-interface-app.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\diagnostic.h</file>
+      <file>$PROJ_DIR$\..\..\hal\micro\cortexm3\memmap-tables.h</file>
+      <file>$PROJ_DIR$\thread-token.h</file>
+    </outputs>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\adc.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 204</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 186</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 106 124 111 99 93 90 88 107 92 100 81 95 82 96 102 84 87 86 89 70 80 98 78 85 91 60 72 59</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\debug-print\debug-print.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 112</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 156</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\thread-callback-stubs.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 104</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 185</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\thread-events.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 141</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 188</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader-interface.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 200</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 167</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 92 82 244 124 98 99 60 72 260 254 90 88 107 106 70 80 228 233 102 84 87 86 89 78 85 91 261 251 224 95 100 248 247 230 268 270 262 222 258</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\address-configuration-debug\address-configuration-debug.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 199</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 190</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\button.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 219</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 170</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\serial\command-interpreter2.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 137</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 168</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\dhcp-client\dhcp-client.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 120</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 189</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\client-implementation.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 163</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 178</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\buzzer.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 173</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 130</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\serial\command-interpreter2-error.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 121</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 162</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\thread-callbacks.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 134</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 145</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\thread-cli.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 108</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 180</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\serial\command-interpreter2-util.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 133</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 169</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\cli\cli.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 210</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 175</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\bootloader-interface-app.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 209</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 187</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 87 98 99 91 232 82 102 72 246 86 78 230 240 233 222 244 84 106 89 70 80 85 100 247 93 266 259 241 253 96 242 271 95 254 231 228 224 90 124 88 107 92 60 248 225 257 265 227 239 229 243 269 255 252 111 256 81 59 260 251 268 261 263 267 264 250 262 270 258</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\coap-cli\coap-cli.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 103</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 172</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\thread-bookkeeping.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 109</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 171</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\diagnostic.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 129</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 181</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\assert-crash-handlers.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 113</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 195</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\generic\mem-util.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 127</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 226</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\cdc\callbacks.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 105</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 196</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\global-address-prefix-debug\global-address-prefix-debug.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 128</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 160</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbdch9.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 116</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 223</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\isr-stubs.s79</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 208</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbd.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 155</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 213</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbdep.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 197</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\mfg-token.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 123</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 245</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbhal.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 205</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\cstartup-common.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 138</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 220</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbint.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 126</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 203</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\usb\em_usbtimer.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 118</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 221</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\generic\endian.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 117</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 236</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\generic\crc.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 122</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 192</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\faults.s79</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 182</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\uart.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 131</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 206</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\sleep.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 148</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 201</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\token-def.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 146</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 207</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\icmp-debug\icmp-debug.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 152</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 238</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\idle-sleep\idle-sleep.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 147</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 215</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\slaac-client\slaac-client.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 154</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 193</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\generic\sim-eeprom.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 150</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 217</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\generic\random.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 149</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 202</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\mpu.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 114</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 235</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 110</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 211</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\micro-common.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 119</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 249</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\led.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 143</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 216</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\network-management-cli\network-management-cli.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 142</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 183</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\hal\micro\cortexm3\token.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 153</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 194</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\icmp-cli\icmp-cli.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 135</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 237</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\heartbeat\heartbeat.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 140</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 234</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\scan-debug\scan-debug.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 151</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 177</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\main\main.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 158</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 198</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\serial\serial-printf.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 157</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 161</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\serial\serial.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 144</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 191</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\udp-cli\udp-cli.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 68</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 164</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\stack\config\ember-ip-configuration.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 61</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 166</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\build\exe\Thread_Sample_Client.out</name>
+      <outputs>
+        <tool>
+          <name>OBJCOPY</name>
+          <file> 65</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\bootload\tftp-bootloader\tftp-bootloader-15-4.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 159</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 218</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\bootload\tftp\tftp-15-4.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 139</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 179</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\tftp-bootload-target\tftp-bootload.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 132</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 184</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\bootload\tftp-bootloader\server\tftp-bootloader-server.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 136</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 212</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\thread\plugin\version-debug\version-debug.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 97</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 214</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\bootload\tftp\tftp.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 94</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 176</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\bootload\tftp-bootloader\tftp-bootloader.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 101</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 174</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\util\bootload\tftp\server\tftp-server.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 79</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 165</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>[ROOT_NODE]</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 63</file>
+        </tool>
+      </outputs>
+    </file>
+  </configuration>
+</project>
+
+

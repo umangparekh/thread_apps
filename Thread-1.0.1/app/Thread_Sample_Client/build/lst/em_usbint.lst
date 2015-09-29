@@ -1,0 +1,714 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:30
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\usb\em_usbint.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\usb\em_usbint.c -D
+#        APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"em_usbint.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\usb\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\em_usbint.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\em_usbint.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\usb\em_usbint.c
+      1          /**************************************************************************//**
+      2           * @file
+      3           * @brief USB protocol stack library, USB device peripheral interrupt handlers.
+      4           * @author Nathaniel Ting
+      5           * @version 3.20.3
+      6           * <!-- Copyright 2013 by Silicon Laboratories. All rights reserved.     *80*-->
+      7           *****************************************************************************/
+      8          
+      9          
+     10          #include PLATFORM_HEADER
+     11          #include "stack/include/ember.h"
+     12          #include "hal/hal.h"
+     13          
+     14          #if defined(CORTEXM3_EM35X_USB)
+     15          // Only define this ISR if USB is on and EnergyMicro USB is enabled. When this
+     16          // function is defined it will cause extra code to be pulled in even if the ISR
+     17          // will never fire.
+     18          
+     19          #include "em_usb.h"
+     20          #include "em_usbhal.h"
+
+   \                                 In section .text, align 2, keep-with-next
+   \   static __interwork __softfp void USBDHAL_StartEp0Setup(struct <unnamed> *)
+   \                     USBDHAL_StartEp0Setup: (+1)
+   \   00000000   0x2100             MOVS     R1,#+0
+   \   00000002   0xF880 0x1034      STRB     R1,[R0, #+52]
+   \   00000006   0x1D01             ADDS     R1,R0,#+4
+   \   00000008   0x6001             STR      R1,[R0, #+0]
+   \   0000000A   0x4770             BX       LR               ;; return
+
+   \                                 In section .text, align 2, keep-with-next
+   \   static __interwork __softfp enum <unnamed> USBDHAL_UnStallEp(struct <unnamed> *)
+   \                     USBDHAL_UnStallEp: (+1)
+   \   00000000   0x7882             LDRB     R2,[R0, #+2]
+   \   00000002   0x7800             LDRB     R0,[R0, #+0]
+   \   00000004   0x2101             MOVS     R1,#+1
+   \   00000006   0x4091             LSLS     R1,R1,R2
+   \   00000008   0x43C9             MVNS     R1,R1
+   \   0000000A   0x....             LDR.N    R2,??DataTable3  ;; 0x40011054
+   \   0000000C   0xB118             CBZ.N    R0,??USBDHAL_UnStallEp_0
+   \   0000000E   0x6810             LDR      R0,[R2, #+0]
+   \   00000010   0x4008             ANDS     R0,R1,R0
+   \   00000012   0x6010             STR      R0,[R2, #+0]
+   \   00000014   0xE002             B.N      ??USBDHAL_UnStallEp_1
+   \                     ??USBDHAL_UnStallEp_0: (+1)
+   \   00000016   0x6850             LDR      R0,[R2, #+4]
+   \   00000018   0x4008             ANDS     R0,R1,R0
+   \   0000001A   0x6050             STR      R0,[R2, #+4]
+   \                     ??USBDHAL_UnStallEp_1: (+1)
+   \   0000001C   0x2000             MOVS     R0,#+0
+   \   0000001E   0x4770             BX       LR               ;; return
+     21          #include "em_usbtypes.h"
+     22          #include "em_usbd.h"
+
+   \                                 In section .text, align 2, keep-with-next
+   \   static __interwork __softfp struct <unnamed> *USBD_GetEpFromAddr(uint8_t)
+   \                     USBD_GetEpFromAddr: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0x....             LDR.N    R2,??DataTable3_1
+   \   00000004   0x6812             LDR      R2,[R2, #+0]
+   \   00000006   0xF000 0x030F      AND      R3,R0,#0xF
+   \   0000000A   0x2100             MOVS     R1,#+0
+   \   0000000C   0x189B             ADDS     R3,R3,R2
+   \   0000000E   0x0604             LSLS     R4,R0,#+24
+   \   00000010   0xBF4C             ITE      MI 
+   \   00000012   0xF893 0x30D4      LDRBMI   R3,[R3, #+212]
+   \   00000016   0xF893 0x30E1      LDRBPL   R3,[R3, #+225]
+   \   0000001A   0xB12B             CBZ.N    R3,??USBD_GetEpFromAddr_0
+   \   0000001C   0x2028             MOVS     R0,#+40
+   \   0000001E   0xFB00 0x2003      MLA      R0,R0,R3,R2
+   \   00000022   0xF100 0x0134      ADD      R1,R0,#+52
+   \   00000026   0xE004             B.N      ??USBD_GetEpFromAddr_1
+   \                     ??USBD_GetEpFromAddr_0: (+1)
+   \   00000028   0x230F             MOVS     R3,#+15
+   \   0000002A   0x4218             TST      R0,R3
+   \   0000002C   0xBF08             IT       EQ 
+   \   0000002E   0xF102 0x0134      ADDEQ    R1,R2,#+52
+   \                     ??USBD_GetEpFromAddr_1: (+1)
+   \   00000032   0x4608             MOV      R0,R1
+   \   00000034   0xBD10             POP      {R4,PC}          ;; return
+     23          #include "app/util/serial/serial.h"
+     24           
+     25          /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+     26          
+
+   \                                 In section .bss, align 4
+     27          USBD_Ep_TypeDef *ep;
+   \                     ep:
+   \   00000000                      DS8 4
+     28          
+
+   \                                 In section .text, align 2, keep-with-next
+     29          void halUsbIsr(void)
+     30          {
+   \                     halUsbIsr: (+1)
+   \   00000000   0xE92D 0x4FF8      PUSH     {R3-R11,LR}
+     31            #ifdef BOOTLOADER
+     32            VBUSMON_ISR();
+     33            #endif
+     34            
+     35            uint32_t status = INT_USBFLAG;
+   \   00000004   0x....             LDR.N    R0,??DataTable3_2  ;; 0x4000a888
+   \   00000006   0x6804             LDR      R4,[R0, #+0]
+     36            INT_USBFLAG = status;
+   \   00000008   0x6004             STR      R4,[R0, #+0]
+     37            
+     38            if ( status == 0 )
+   \   0000000A   0x2C00             CMP      R4,#+0
+   \   0000000C   0xF000 0x80BD      BEQ.W    ??halUsbIsr_0
+     39            {
+     40              return;
+     41            }
+     42            //Ensure EP0 IN is not stalled.  Refer to receiving getQualifierDescriptor
+     43            //for more information.
+     44            USB_STALLIN &= ~USB_STALLINEP0;
+   \   00000010   0x....             LDR.N    R5,??DataTable3_3  ;; 0x40011048
+   \   00000012   0x68E9             LDR      R1,[R5, #+12]
+   \   00000014   0x0849             LSRS     R1,R1,#+1
+   \   00000016   0x0049             LSLS     R1,R1,#+1
+   \   00000018   0x60E9             STR      R1,[R5, #+12]
+     45          
+     46            if(status & INT_USBWAKEUP & INT_USBCFG) { 
+   \   0000001A   0x6840             LDR      R0,[R0, #+4]
+   \   0000001C   0x4020             ANDS     R0,R0,R4
+   \   0000001E   0x0200             LSLS     R0,R0,#+8
+   \   00000020   0xD506             BPL.N    ??halUsbIsr_1
+     47              #ifdef USB_DEBUG_SUSPEND
+     48                DEBUG_BUFFER += sprintf(DEBUG_BUFFER,"INT_USBWAKEUP\r\n");
+     49              #endif
+     50          
+     51              //The INT_USBWAKEUP interrupt triggers for a successful remote wakeup
+     52              //This is essentially a resume only intiated by the device instaed of host
+     53              //need INT_USBCFG mask to enable turning on/off remote wakeup interrupt
+     54          
+     55              #ifndef BOOTLOADER
+     56                USBD_SetUsbState( USBD_STATE_POWERED );
+   \   00000022   0x2002             MOVS     R0,#+2
+   \   00000024   0x.... 0x....      BL       USBD_SetUsbState
+     57                halResumeCallback();
+   \   00000028   0x.... 0x....      BL       halResumeCallback
+     58                #ifndef EMBER_NO_STACK
+     59                emberStackPowerUp();
+   \   0000002C   0x.... 0x....      BL       emberStackPowerUp
+     60                #endif // EMBER_NO_STACK
+     61              #endif
+     62            }
+     63          
+     64            if(status & INT_USBRESUME) {
+   \                     ??halUsbIsr_1: (+1)
+   \   00000030   0x0260             LSLS     R0,R4,#+9
+   \   00000032   0xD506             BPL.N    ??halUsbIsr_2
+     65              #ifdef USB_DEBUG_SUSPEND
+     66                DEBUG_BUFFER += sprintf(DEBUG_BUFFER,"INT_USBRESUME\r\n");
+     67              #endif
+     68              //The INT_USBRESUME interrupt pulls us out of suspend while the USB
+     69              //core auto clears the USBSUSP_CLKSEL bit (used when entering suspend).
+     70          
+     71              #ifndef BOOTLOADER
+     72                USBD_SetUsbState( USBD_STATE_POWERED );
+   \   00000034   0x2002             MOVS     R0,#+2
+   \   00000036   0x.... 0x....      BL       USBD_SetUsbState
+     73                halResumeCallback();
+   \   0000003A   0x.... 0x....      BL       halResumeCallback
+     74                #ifndef EMBER_NO_STACK
+     75                emberStackPowerUp();
+   \   0000003E   0x.... 0x....      BL       emberStackPowerUp
+     76                #endif // EMBER_NO_STACK
+     77              #endif
+     78          
+     79            }
+     80            
+     81            if(status & INT_USBSUSPEND) {
+   \                     ??halUsbIsr_2: (+1)
+   \   00000042   0x02A0             LSLS     R0,R4,#+10
+   \   00000044   0xBF44             ITT      MI 
+   \   00000046   0x2006             MOVMI    R0,#+6
+   \   00000048   0x.... 0x....      BLMI     USBD_SetUsbState
+     82              #ifdef USB_DEBUG_SUSPEND
+     83                DEBUG_BUFFER += sprintf(DEBUG_BUFFER,"INT_USBSUSPEND\r\n");
+     84              #endif
+     85              //If suspend if being supported, we now have 7ms to get down to
+     86              //suspend current.  Setting usb state to USBD_STATE_SUSPENDED will allow
+     87              //the usbSuspendDsr() function to place us in the appropriate low
+     88              //power clocking and idle mode.
+     89              //
+     90              //NOTE:  The stack and HAL should be shutdown like deep sleeping before
+     91              //       suspend is entered.  USB sleep involves slowing down peripheral
+     92              //       clocking, but it does not stop the clocks.  This means
+     93              //       peripherals will keep running if they're enabled.  Being at
+     94              //       a slower clock speed can severely disrupt application behavior
+     95              //       that depends on clean peripherial behavior at a desired clock
+     96              //       rate.  For example, problems with the UART would be very obvious.
+     97              
+     98          
+     99              #ifndef BOOTLOADER
+    100              USBD_SetUsbState( USBD_STATE_SUSPENDED );
+    101              #endif
+    102              //USBTODO- Software needs to remember when INT_USBSUSPEND fires so that
+    103              //  it can return to suspend if a non-USB event pulls us out of
+    104              //  the USB sleep mode.  Only INT_USBRESUME is allowed to keep us
+    105              //  out of suspend.
+    106            }
+    107            
+    108          
+    109            if(status & INT_USBRESET) {
+   \   0000004C   0x02E0             LSLS     R0,R4,#+11
+   \   0000004E   0x....             LDR.N    R6,??DataTable3_1
+   \   00000050   0xD51B             BPL.N    ??halUsbIsr_3
+    110              #ifdef USB_DEBUG_INT
+    111                DEBUG_BUFFER += sprintf(DEBUG_BUFFER, "\r\n\r\nINT_USBRESET\r\n");
+    112              #endif
+    113              //When a USB reset occurs it resets the core but not the DMA.  To ensure
+    114              //transactions after a reset are fresh all buffers (DMA) need to be
+    115              //cleared.
+    116              USB_BUFCLR = (USB_BUFCLRINEP6 |
+    117                            USB_BUFCLRINEP5 |
+    118                            USB_BUFCLRINEP4 |
+    119                            USB_BUFCLRINEP3 |
+    120                            USB_BUFCLRINEP2 |
+    121                            USB_BUFCLRINEP1 |
+    122                            USB_BUFCLRINEP0 );
+   \   00000052   0x207F             MOVS     R0,#+127
+   \   00000054   0x61E8             STR      R0,[R5, #+28]
+    123          
+    124          
+    125              /* Setup EP0 to receive SETUP packets */
+    126              USBDHAL_StartEp0Setup( dev );
+   \   00000056   0x6830             LDR      R0,[R6, #+0]
+   \   00000058   0x.... 0x....      BL       USBDHAL_StartEp0Setup
+    127              USBD_Ep_TypeDef *ep;
+    128              ep = &dev->ep[ 0 ];
+   \   0000005C   0x6830             LDR      R0,[R6, #+0]
+   \   0000005E   0xF100 0x0734      ADD      R7,R0,#+52
+    129              ep->state = D_EP_IDLE;
+   \   00000062   0x2000             MOVS     R0,#+0
+   \   00000064   0xF887 0x0020      STRB     R0,[R7, #+32]
+    130              ep->remaining = 0;
+   \   00000068   0x6138             STR      R0,[R7, #+16]
+    131          
+    132              ep->in = true;
+   \   0000006A   0x2001             MOVS     R0,#+1
+   \   0000006C   0x7038             STRB     R0,[R7, #+0]
+    133              USBDHAL_UnStallEp( ep );              /* Stall Ep0 IN                 */
+   \   0000006E   0x4638             MOV      R0,R7
+   \   00000070   0x.... 0x....      BL       USBDHAL_UnStallEp
+    134              ep->in = false;                     /* OUT for next SETUP           */
+   \   00000074   0x2000             MOVS     R0,#+0
+   \   00000076   0x7038             STRB     R0,[R7, #+0]
+    135              USBDHAL_UnStallEp( ep );              /* Stall Ep0 OUT                */
+   \   00000078   0x4638             MOV      R0,R7
+   \   0000007A   0x.... 0x....      BL       USBDHAL_UnStallEp
+   \   0000007E   0x6830             LDR      R0,[R6, #+0]
+   \   00000080   0x6B00             LDR      R0,[R0, #+48]
+   \   00000082   0x6800             LDR      R0,[R0, #+0]
+   \   00000084   0x0001             MOVS     R1,R0
+   \   00000086   0xBF18             IT       NE 
+   \   00000088   0x4780             BLXNE    R0
+    136              
+    137              if ( dev->callbacks->usbReset )
+    138              {
+    139                dev->callbacks->usbReset();
+    140              }
+    141          
+    142              // USBD_SetUsbState( USBD_STATE_DEFAULT );
+    143              // USBDHAL_AbortAllTransfers( USB_STATUS_DEVICE_RESET );
+    144            }
+    145          
+    146            
+    147            if(USB_RXBUFSIZEEP0A == 0) {
+   \                     ??halUsbIsr_3: (+1)
+   \   0000008A   0x6B28             LDR      R0,[R5, #+48]
+   \   0000008C   0xB950             CBNZ.N   R0,??halUsbIsr_4
+    148              USB_BUFCLR = USB_BUFCLRINEP0;
+   \   0000008E   0x2001             MOVS     R0,#+1
+   \   00000090   0x61E8             STR      R0,[R5, #+28]
+    149              
+    150              USBDHAL_StartEp0Setup( dev );
+   \   00000092   0x6830             LDR      R0,[R6, #+0]
+   \   00000094   0x.... 0x....      BL       USBDHAL_StartEp0Setup
+    151              USBD_Ep_TypeDef *ep;
+    152              ep = &dev->ep[ 0 ];
+   \   00000098   0x6830             LDR      R0,[R6, #+0]
+   \   0000009A   0x3034             ADDS     R0,R0,#+52
+    153              ep->state = D_EP_IDLE;
+   \   0000009C   0x2100             MOVS     R1,#+0
+   \   0000009E   0xF880 0x1020      STRB     R1,[R0, #+32]
+    154              ep->remaining = 0;
+   \   000000A2   0x6101             STR      R1,[R0, #+16]
+    155            }
+    156          
+    157            //==== RX functionality ====
+    158            if (status & INT_USBRXVALID)
+   \                     ??halUsbIsr_4: (+1)
+   \   000000A4   0xF414 0x5F7E      TST      R4,#0x3F80
+   \   000000A8   0x.... 0x....      LDR.W    R8,??DataTable3_4
+   \   000000AC   0xD052             BEQ.N    ??halUsbIsr_5
+    159            {
+    160              int epnum;
+    161              uint16_t epmask;
+    162          
+    163              // sweep through eps to determine which EP the interrupt is on
+    164              for ( epnum = 0,                epmask = INT_USBRXVALIDEP0;
+   \   000000AE   0x2700             MOVS     R7,#+0
+   \   000000B0   0xF04F 0x0980      MOV      R9,#+128
+   \   000000B4   0x.... 0x....      LDR.W    R10,??DataTable3_5
+    165                    epnum <= MAX_NUM_OUT_EPS;
+    166                    epnum++,                  epmask <<= 1 )
+    167              {
+    168                if (status & epmask)
+   \                     ??halUsbIsr_6: (+1)
+   \   000000B8   0xFA1F 0xF989      UXTH     R9,R9
+   \   000000BC   0xEA14 0x0F09      TST      R4,R9
+   \   000000C0   0xD043             BEQ.N    ??halUsbIsr_7
+    169                {
+    170          
+    171                  // determine how many bytes were received
+    172                  volatile uint32_t *bufsize = EPOUTBUFSIZE[epnum];
+   \   000000C2   0x....             LDR.N    R0,??DataTable3_6
+   \   000000C4   0xF850 0xB027      LDR      R11,[R0, R7, LSL #+2]
+    173          
+    174                  #ifdef USB_DEBUG_INT
+    175                    #ifdef USB_DEBUG_VERBOSE
+    176                      DEBUG_BUFFER += sprintf(DEBUG_BUFFER,"RX%d-->",epnum);
+    177                      uint8_t i;
+    178                      for(i=0;i<*bufsize;i++) {
+    179                        DEBUG_BUFFER += sprintf(DEBUG_BUFFER, "%02X", EPOUTBUF[epnum][i]);
+    180                      }
+    181                      DEBUG_BUFFER += sprintf(DEBUG_BUFFER, "  %d bytes\r\n", *bufsize);
+    182                    #else
+    183                      DEBUG_BUFFER += sprintf(DEBUG_BUFFER,"RX%d-->%d bytes\r\n",epnum, *bufsize);
+    184                    #endif
+    185                  #endif
+    186          
+    187          
+    188                  // update endpoint state
+    189                  ep = USBD_GetEpFromAddr( epnum );
+   \   000000C8   0xB2F8             UXTB     R0,R7
+   \   000000CA   0x.... 0x....      BL       USBD_GetEpFromAddr
+   \   000000CE   0xF8C8 0x0000      STR      R0,[R8, #+0]
+    190                  ep->remaining -= EFM32_MIN(ep->remaining,*bufsize);
+   \   000000D2   0x6901             LDR      R1,[R0, #+16]
+   \   000000D4   0xF8DB 0x2000      LDR      R2,[R11, #+0]
+   \   000000D8   0x4291             CMP      R1,R2
+   \   000000DA   0xBF34             ITE      CC 
+   \   000000DC   0x460A             MOVCC    R2,R1
+   \   000000DE   0xF8DB 0x2000      LDRCS    R2,[R11, #+0]
+   \   000000E2   0x1A89             SUBS     R1,R1,R2
+   \   000000E4   0x6101             STR      R1,[R0, #+16]
+    191                  ep->xferred += *bufsize;
+   \   000000E6   0x6941             LDR      R1,[R0, #+20]
+   \   000000E8   0xF8DB 0x2000      LDR      R2,[R11, #+0]
+   \   000000EC   0x1851             ADDS     R1,R2,R1
+   \   000000EE   0x6141             STR      R1,[R0, #+20]
+    192          
+    193                  // #ifdef USB_DEBUG_INT
+    194                  //   DEBUG_BUFFER += sprintf(DEBUG_BUFFER, "  %d remaining, %d xferred\r\n", ep->remaining, ep->xferred);
+    195                  // #endif
+    196          
+    197                  // dispatch endpoint handler, erase buffer, reenable endpoint RX
+    198                  if (epnum ==0)
+   \   000000F0   0xB91F             CBNZ.N   R7,??halUsbIsr_8
+    199                  {
+    200                    USBDEP_Ep0Handler( dev );
+   \   000000F2   0x6830             LDR      R0,[R6, #+0]
+   \   000000F4   0x.... 0x....      BL       USBDEP_Ep0Handler
+   \   000000F8   0xE01B             B.N      ??halUsbIsr_9
+    201                  }
+    202                  else
+    203                  {
+    204                    // copy buffer to endpoint specified buffer location before erasing
+    205                    if (ep->state == D_EP_RECEIVING)
+   \                     ??halUsbIsr_8: (+1)
+   \   000000FA   0xF890 0x1020      LDRB     R1,[R0, #+32]
+   \   000000FE   0x2902             CMP      R1,#+2
+   \   00000100   0xD108             BNE.N    ??halUsbIsr_10
+    206                    {
+    207                      MEMMOVE(ep->buf,EPOUTBUF[ep->num], *bufsize);
+   \   00000102   0xF8DB 0x2000      LDR      R2,[R11, #+0]
+   \   00000106   0x7881             LDRB     R1,[R0, #+2]
+   \   00000108   0xF85A 0x1021      LDR      R1,[R10, R1, LSL #+2]
+   \   0000010C   0x6880             LDR      R0,[R0, #+8]
+   \   0000010E   0xB292             UXTH     R2,R2
+   \   00000110   0x.... 0x....      BL       halCommonMemMove
+    208                    }
+    209                    #if EM_SERIAL3_ENABLED
+    210                      halInternalUart3RxIsr(EPOUTBUF[ep->num], *bufsize);
+   \                     ??halUsbIsr_10: (+1)
+   \   00000114   0xF8DB 0x1000      LDR      R1,[R11, #+0]
+   \   00000118   0xF8D8 0x0000      LDR      R0,[R8, #+0]
+   \   0000011C   0x7880             LDRB     R0,[R0, #+2]
+   \   0000011E   0xF85A 0x0020      LDR      R0,[R10, R0, LSL #+2]
+   \   00000122   0xB2C9             UXTB     R1,R1
+   \   00000124   0x.... 0x....      BL       halInternalUart3RxIsr
+    211                    #endif //EM_SERIAL3_ENABLED
+    212          
+    213                    USBDEP_EpHandler(ep->addr);
+   \   00000128   0xF8D8 0x0000      LDR      R0,[R8, #+0]
+   \   0000012C   0x78C0             LDRB     R0,[R0, #+3]
+   \   0000012E   0x.... 0x....      BL       USBDEP_EpHandler
+    214                  }
+    215                  
+    216                  MEMSET(EPOUTBUF[epnum], 0, *bufsize);
+   \                     ??halUsbIsr_9: (+1)
+   \   00000132   0xF8DB 0x2000      LDR      R2,[R11, #+0]
+   \   00000136   0xF85A 0x0027      LDR      R0,[R10, R7, LSL #+2]
+   \   0000013A   0xB292             UXTH     R2,R2
+   \   0000013C   0x2100             MOVS     R1,#+0
+   \   0000013E   0x.... 0x....      BL       halCommonMemSet
+    217                  USB_RXVALID = ((USB_RXVALIDEP0A<<epnum) | (USB_RXVALIDEP0B<<epnum));
+   \   00000142   0xF240 0x1001      MOVW     R0,#+257
+   \   00000146   0x40B8             LSLS     R0,R0,R7
+   \   00000148   0x6028             STR      R0,[R5, #+0]
+    218          
+    219                }
+    220              }
+   \                     ??halUsbIsr_7: (+1)
+   \   0000014A   0x1C7F             ADDS     R7,R7,#+1
+   \   0000014C   0x2F07             CMP      R7,#+7
+   \   0000014E   0xEA4F 0x0949      LSL      R9,R9,#+1
+   \   00000152   0xDBB1             BLT.N    ??halUsbIsr_6
+    221            }
+    222          
+    223          
+    224            //==== TX functionality ====
+    225            //NOTE: INT_USBTXACTIVEEPx interrupts fire on USB_TXACTIVEEPxy falling edge.
+    226            if (status & INT_USBTXACTIVE)
+   \                     ??halUsbIsr_5: (+1)
+   \   00000154   0xF014 0x0F7F      TST      R4,#0x7F
+   \   00000158   0xD017             BEQ.N    ??halUsbIsr_0
+    227            {
+    228              int epnum;
+    229              uint16_t epmask;
+    230          
+    231              // sweep through eps to determine which EP the interrupt is on
+    232              for ( epnum = 0,                epmask = INT_USBTXACTIVEEP0;
+   \   0000015A   0x2500             MOVS     R5,#+0
+   \   0000015C   0x2701             MOVS     R7,#+1
+    233                    epnum <= MAX_NUM_OUT_EPS;
+    234                    epnum++,                  epmask <<= 1 )
+    235              {
+    236                if (status & epmask)
+   \                     ??halUsbIsr_11: (+1)
+   \   0000015E   0xB2BF             UXTH     R7,R7
+   \   00000160   0x423C             TST      R4,R7
+   \   00000162   0xD00E             BEQ.N    ??halUsbIsr_12
+    237                {
+    238                  #ifdef USB_DEBUG_INT
+    239                    DEBUG_BUFFER += sprintf(DEBUG_BUFFER,"TX%d\r\n",epnum);
+    240                  #endif
+    241          
+    242                  // dispatch endpoint handler
+    243                  if (epnum == 0)
+   \   00000164   0xB91D             CBNZ.N   R5,??halUsbIsr_13
+    244                  {
+    245                    USBDEP_Ep0Handler( dev );
+   \   00000166   0x6830             LDR      R0,[R6, #+0]
+   \   00000168   0x.... 0x....      BL       USBDEP_Ep0Handler
+   \   0000016C   0xE009             B.N      ??halUsbIsr_12
+    246                  }
+    247                  else
+    248                  {
+    249                    ep = USBD_GetEpFromAddr( USB_SETUP_DIR_MASK | epnum );
+   \                     ??halUsbIsr_13: (+1)
+   \   0000016E   0xF045 0x0080      ORR      R0,R5,#0x80
+   \   00000172   0xB2C0             UXTB     R0,R0
+   \   00000174   0x.... 0x....      BL       USBD_GetEpFromAddr
+   \   00000178   0xF8C8 0x0000      STR      R0,[R8, #+0]
+    250                    USBDEP_EpHandler(ep->addr);
+   \   0000017C   0x78C0             LDRB     R0,[R0, #+3]
+   \   0000017E   0x.... 0x....      BL       USBDEP_EpHandler
+    251                  }
+    252          
+    253                }
+    254              }
+   \                     ??halUsbIsr_12: (+1)
+   \   00000182   0x1C6D             ADDS     R5,R5,#+1
+   \   00000184   0x007F             LSLS     R7,R7,#+1
+   \   00000186   0x2D07             CMP      R5,#+7
+   \   00000188   0xDBE9             BLT.N    ??halUsbIsr_11
+    255            }
+    256          }
+   \                     ??halUsbIsr_0: (+1)
+   \   0000018A   0xE8BD 0x8FF1      POP      {R0,R4-R11,PC}   ;; return
+    257          
+    258          #ifdef VBUSMON
+
+   \                                 In section .text, align 2, keep-with-next
+    259          void VBUSMON_ISR(void)
+    260          {
+   \                     halIrqDIsr: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    261            //VBUSMON is used for sensing VBUS indicating if USB is physically connected.
+    262            //An IRQ is used to monitor for any edge change on VBUSMON.
+    263            //For self-powered devices, VBUS monitoring is required for the EM358 device
+    264            //to function cleanly across physical connect/disconnects of the USB.
+    265            //The USB specification requires that the pull-up resistor for
+    266            //enumerating is disconnected if VBUS is not connected.
+    267            
+    268            //clear int before read to avoid potential of missing interrupt
+    269            INT_MISS = VBUSMON_MISS_BIT;     //clear missed interrupt flag
+   \   00000002   0x....             LDR.N    R0,??DataTable3_7  ;; 0x4000a814
+   \   00000004   0x....             LDR.N    R4,??DataTable3_8  ;; 0x4000b000
+   \   00000006   0xF44F 0x4100      MOV      R1,#+32768
+   \   0000000A   0x60C1             STR      R1,[R0, #+12]
+    270            INT_GPIOFLAG = VBUSMON_FLAG_BIT; //clear top level interrupt flag
+   \   0000000C   0x2108             MOVS     R1,#+8
+   \   0000000E   0x6001             STR      R1,[R0, #+0]
+    271            
+    272            //Because this ISR/IRQ triggers on both edges, usbVbusPresent is used
+    273            //to track the state of VBUS.
+    274            //Always directly read VBUSMON to ensure this ISR is changing to the correct,
+    275            //current state.
+    276            //Falling edge: VBUS removed - Must set ENUMCTRL to input-low.
+    277            //Rrising edge: VBUS applied - If usbConfigEnumerate() has been called and
+    278            //this device is ready to enumerate, set ENUMCTRL to output-high and
+    279            //perform enumeration.
+    280            usbVbusPresent = ((VBUSMON_IN & VBUSMON) == VBUSMON);
+   \   00000010   0x....             LDR.N    R0,??DataTable3_9
+   \   00000012   0x68A1             LDR      R1,[R4, #+8]
+   \   00000014   0x08C9             LSRS     R1,R1,#+3
+   \   00000016   0xF011 0x0101      ANDS     R1,R1,#0x1
+   \   0000001A   0x7001             STRB     R1,[R0, #+0]
+    281            
+    282            if(usbVbusPresent) {
+   \   0000001C   0xD00D             BEQ.N    ??halIrqDIsr_0
+    283              if (USBD_GetUsbState()==USBD_STATE_CONFIGURED)
+   \   0000001E   0x.... 0x....      BL       USBD_GetUsbState
+   \   00000022   0x2804             CMP      R0,#+4
+   \   00000024   0xD016             BEQ.N    ??halIrqDIsr_1
+    284                return;
+    285              //Only attempt enumerate if usbConfigEnumerate has already been called.
+    286              //Set ENUMCTRL ouput-high to enumerate.
+    287              ENUMCTRL_SETCFG(GPIOCFG_OUT);
+   \   00000026   0x6820             LDR      R0,[R4, #+0]
+   \   00000028   0xF420 0x6070      BIC      R0,R0,#0xF00
+   \   0000002C   0xF440 0x7080      ORR      R0,R0,#0x100
+   \   00000030   0x6020             STR      R0,[R4, #+0]
+    288              ENUMCTRL_SET();
+   \   00000032   0x2004             MOVS     R0,#+4
+   \   00000034   0x6120             STR      R0,[R4, #+16]
+    289          
+    290              // halSetLed(BOARDLED0);
+    291              USBD_SetUsbState(USBD_STATE_DEFAULT);
+   \   00000036   0x2003             MOVS     R0,#+3
+   \   00000038   0xE008             B.N      ??halIrqDIsr_2
+    292            } else {
+    293              //Configure ENUMCTRL as an input so the device de-enumurates and
+    294              //the pin does not put any load on the bus.  (The spec says the
+    295              //pull-up resistor used for enumeration should be tri-state.  On
+    296              //EM358 devices the input configuration is the best available choice
+    297              //since tri-state isn't possible.)
+    298              //Clear down ENUMCTRL to be ready for the next time enumerating.
+    299              ENUMCTRL_SETCFG(GPIOCFG_IN);
+   \                     ??halIrqDIsr_0: (+1)
+   \   0000003A   0x6820             LDR      R0,[R4, #+0]
+   \   0000003C   0xF420 0x6070      BIC      R0,R0,#0xF00
+   \   00000040   0xF440 0x6080      ORR      R0,R0,#0x400
+   \   00000044   0x6020             STR      R0,[R4, #+0]
+    300              ENUMCTRL_CLR();
+   \   00000046   0x2004             MOVS     R0,#+4
+   \   00000048   0x6160             STR      R0,[R4, #+20]
+    301              // halClearLed(BOARDLED0);
+    302              USBD_SetUsbState(USBD_STATE_NONE);
+   \   0000004A   0x2000             MOVS     R0,#+0
+   \                     ??halIrqDIsr_2: (+1)
+   \   0000004C   0xE8BD 0x4010      POP      {R4,LR}
+   \   00000050   0x.... 0x....      B.W      USBD_SetUsbState
+    303            }
+    304          }
+   \                     ??halIrqDIsr_1: (+1)
+   \   00000054   0xBD10             POP      {R4,PC}          ;; return
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3:
+   \   00000000   0x40011054         DC32     0x40011054
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_1:
+   \   00000000   0x........         DC32     dev
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_2:
+   \   00000000   0x4000A888         DC32     0x4000a888
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_3:
+   \   00000000   0x40011048         DC32     0x40011048
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_4:
+   \   00000000   0x........         DC32     ep
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_5:
+   \   00000000   0x........         DC32     EPOUTBUF
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_6:
+   \   00000000   0x........         DC32     EPOUTBUFSIZE
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_7:
+   \   00000000   0x4000A814         DC32     0x4000a814
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_8:
+   \   00000000   0x4000B000         DC32     0x4000b000
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3_9:
+   \   00000000   0x........         DC32     usbVbusPresent
+    305          #endif // VBUSMON
+    306          
+    307          /** @endcond */
+    308          
+    309          #endif // CORTEXM3_EM35X_USB
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   USBDHAL_StartEp0Setup
+       0   USBDHAL_UnStallEp
+       8   USBD_GetEpFromAddr
+       8   halIrqDIsr
+         8   -> USBD_GetUsbState
+         0   -> USBD_SetUsbState
+      40   halUsbIsr
+        40   -> USBDEP_Ep0Handler
+        40   -> USBDEP_EpHandler
+        40   -> USBDHAL_StartEp0Setup
+        40   -> USBDHAL_UnStallEp
+        40   -> USBD_GetEpFromAddr
+        40   -> USBD_SetUsbState
+        40   -> emberStackPowerUp
+        40   -> halCommonMemMove
+        40   -> halCommonMemSet
+        40   -> halInternalUart3RxIsr
+        40   -> halResumeCallback
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable3
+       4  ??DataTable3_1
+       4  ??DataTable3_2
+       4  ??DataTable3_3
+       4  ??DataTable3_4
+       4  ??DataTable3_5
+       4  ??DataTable3_6
+       4  ??DataTable3_7
+       4  ??DataTable3_8
+       4  ??DataTable3_9
+      12  USBDHAL_StartEp0Setup
+      32  USBDHAL_UnStallEp
+      54  USBD_GetEpFromAddr
+       4  ep
+      86  halIrqDIsr
+     398  halUsbIsr
+
+ 
+   4 bytes in section .bss
+ 622 bytes in section .text
+ 
+ 622 bytes of CODE memory
+   4 bytes of DATA memory
+
+Errors: none
+Warnings: none

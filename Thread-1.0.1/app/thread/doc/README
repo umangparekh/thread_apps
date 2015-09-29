@@ -1,0 +1,252 @@
+The Thread framework consists of a set of plugins and libraries that provide
+functionality that a user may want in an application.  Plugins and libraries
+are roughly divided into three categories: HAL, stack, and application.  Some
+plugins and libraries are also offered as stubs that satisfy dependencies but
+otherwise provide no functionality.
+
+HAL plugins and libraries:
+
+ADC - provides sample API functions for the analog-to-digital converter
+Button - provides sample API functions for operating buttons
+Buzzer - provides sample API functions for operating buzzers
+Diagnostic - provides program counter diagnostic functions
+HAL Library - provides common functionality for EM3xx SoCs
+LED - provides sample API functions for operating LEDs
+Simulated EEPROM - provides a simulated EEPROM for persistent storage
+
+Stack plugins and libraries:
+
+Host Network Management - provides support for running host applications
+Manufacturing Library - provides support for various manufacturing test APIs
+Thread Stack Library - provides the Thread networking layer for SoCs
+
+Application plugins and libraries:
+
+General functionality:
+CLI - prints a prompt and drives the Command Interpreter
+Command Interpreter - processes commands on the application serial port
+Debug Print - provides APIs for debug printing
+DHCP Client - requests addresses when DHCP servers become available
+Idle/Sleep - implements power saving via idling and sleeping
+Main - initializes the HAL, stack, and application and runs the application loop
+Polling - periodically sends a data poll to the parent
+Serial - provides serial input and output functions
+SLAAC Client - requests addresses when SLAAC servers become available
+
+Debug and test functionality:
+Address Configuration Debug - prints address information for debugging
+CoAP CLI - provides CLI commands for sending CoAP request to another node
+CoAP Debug - prints incoming CoAP messages for debugging
+Global Address/Prefix Debug - prints global addresses and prefixes for debugging
+Heartbeat - blinks an LED periodically to indicate the application is running
+ICMP ClI - provides CLI commands for pinging another node
+ICMP Debug - prints incoming ICMP messages for debugging
+Network Management CLI - provides CLI commands for forming and joining networks
+Scan Debug - prints scanning data for debugging
+UDP CLI - provides CLI commands for sending UDP messages to another node
+UDP Debug - prints incoming UDP messages for debugging
+Version Debug - prints version information for debugging
+
+
+Several plugins provide CLI commands to the application.  If the plugin is
+enabled, the CLI commands will be available.  The application can also provide
+its own CLI commands using AppBuilder.
+
+The Command Interpreter plugin contributes the following commands to the
+application:
+
+help
+- Prints the available CLI commands.
+
+The CLI plugin contributes the following commands to the application:
+
+reset
+- Resets the node.
+
+The CoAP CLI plugin contributes the following commands to the application:
+
+coap get <destination> <uri>
+- Sends a GET request to an IPv6 address with the given parameters.
+- Example: coap get "fd31:4159:2653:5897:9323:8462:6433:8327" "example/get"
+  - Sends a GET request to "fd31..." for the "example/get" URI.
+
+coap post <destination> <uri> <body>
+- Sends a POST request to an IPv6 address with the given parameters.
+- An empty body (e.g., {}) means no payload.
+- Example: coap post "fd31:4159:2653:5897:9323:8462:6433:8327" "example/post" {01}
+  - Sends a POST request to "fd31..." with payload 0x01 to the "example/post"
+    URI.
+
+The ICMP CLI plugin contributes the following commands to the application:
+
+icmp listen <address>
+- Sets up a listener for ICMP messages for the given address.
+- Example: icmp listen "fd31:4159:2653:5897:9323:8462:6433:8327"
+  - Sets up "fd31..." as a listener for ICMP messages.
+
+icmp ping <destination> [<id:2> <sequence:2> <length:2> <hop limit:2>]
+- Pings an IPv6 address with the given parameters.
+- id, sequence, length, and hop limit are optional and may be omitted.  If one
+  is specified, all must be specified.
+- Example: icmp ping "fd31:4159:2653:5897:9323:8462:6433:8327" 0x0102 0x0304 1 0
+  - Pings "fd31..." with id 0x0102, sequence number 0x0304, payload length of 1
+    byte, with no hops.
+
+The Network Management CLI plugin contributes the following commands to the
+application:
+
+info
+- Prints information about the network, including network state, node type, and
+  IPv6 address(es).
+
+network-management form <channel:1> <power:1> <node type:1> [<network id> [<ula prefix>]]
+- Forms a new network with the given channel, TX power, node type, network id,
+  and ULA prefix.
+- Channel 0 means any channel.
+- Network id and ULA prefix are optional and may be omitted.  If ULA is
+  specified, network id must be specified too, but may be empty (e.g., "").
+- Example: network-management form 11 3 2 "example-id" "fd31:4159:2653:5897"
+  - Forms a network "example-id" with ULA "fd31..." on channel 11, with TX
+    power 3 dBm, as a router.
+
+network-management join <channel:1> <power:1> <node type:1> <network id> <extended pan id:8> <pan id:2> <join key>
+- Joins a new network with the given channel, TX power, node type, extended pan
+  id, pan id, and join key.
+- Channel 0 means any channel.
+- An empty network id (e.g., "") means any network id.
+- An empty extend PAN id  (e.g., {}) means any extended PAN id.
+- PAN id 0xFFFF means any PAN id.
+- Join key is the key shared with the commissioner.
+- Example: network-management join 0 3 2 "" {} 0xFFFF "JOIN_KEY"
+  - Joins any network using the key "JOIN_KEY" as a router with TX power 3 dBm.
+
+network-management attach
+- Attaches with any available router-eligible devices in the network.
+
+network-management commission <preferred channel:1> <fallback channel mask:4> <network id:0--16> <ula prefix> <extended pan id:8> <key:16> [<pan id:2> [<key sequence:4>]]
+- Commissions the stack for commissioned joining.
+- Channel 0 means any channel.
+- PAN id 0xFFFF means any PAN id.
+- PAN id and key sequence are optional and may be omitted.  If key sequence is
+  specified, PAN id must be specified too, but may be 0xFFFF.
+- Example: network-management commission 0 0 "example-id" "fd31:4159:2653:5897" {0102030405060708} {656D62657220454D3235302063686970}
+  - Commissions the stack to join network "example-id" with ULA "fd31..." and
+    extended PAN id {01...} on any channel using key {65...}.
+
+network-management join-commissioned <power:1> <node type:1> [<require connectivity:1>]
+- Joins an already-commissioned network.
+- Require connectivity is optional and may be omitted.
+- Example: network-management join-commissioned 3 2 0
+  - Join the already-commissioned network as a router with TX power 3 dBm
+    without starting a new fragment.
+
+network-management resume
+- Resumes network operation after the node resets.
+
+network-management reset
+- Erases the network state stored in nonvolatile memory.
+
+network-management set-master-key <network key:16>
+- Sets a specific key as the master key.
+- Must be called prior to forming or joining.
+- Example: network-management set-master-key {656D62657220454D3235302063686970}
+  - Sets the master key to {65...}.
+
+network-management set-join-key <join key> [<eui64:8>]
+- Supplies the commissioner with the key for a joining device.
+- EUI64 is optional and may be omitted.
+- Example: network-management set-join-key "JOIN_KEY" {0102030405060708}
+  - Sets the join key to "JOIN_KEY", specifically for {01...}.
+
+network-management commissioning start <commissioner id>
+- Petitions to make this device the commissioner for the network.
+- Example: network-management commissioning start "My smartphone"
+  - Becomes the commissioner with the friendly name "My smartphone".
+
+network-management commissioning stop
+- Stops being the commissioner.
+
+network-management set-joining-mode <mode:1> <length:1>
+- Sets the joining mode.
+- Example: network-management set-joining-mode 1 1
+  - Sets the joining mode to allow steering without steering information.
+
+network-management steering add <eui64:8>
+- Adds a node to the steering data.
+- Example: network-management steering add {0102030405060708}
+  - Adds {01...} to the steering data.
+
+network-management steering send
+- Sends steering data to the network and enable joining.
+
+network-management scan active [<channel:1> [<duration:1>]]
+- Starts an active scan for available networks.
+- Channel 0 means all channels.
+- Duration is the exponent of the number of scan periods, where a scan period
+  is 960 symbols, and a symbol is 16 microseconds.  The scan will occur for
+  ((2^duration) + 1) scan periods.
+- Duration 0 means default duration.
+- Channel and duration are optional and may be omitted.  If duration is
+  specified, channel must be specified too, but may be zero.
+- Example: network-management scan active 11 2
+  - Scans channel 11 for available networks for 77 milliseconds.
+
+network-management scan energy [<channel:1> [<duration:1>]]
+- Starts an energy scan for RSSI values.
+- Channel 0 means all channels.
+- Duration is the exponent of the number of scan periods, where a scan period
+  is 960 symbols, and a symbol is 16 microseconds.  The scan will occur for
+  ((2^duration) + 1) scan periods.
+- Duration 0 means default duration.
+- Channel and duration are optional and may be omitted.  If duration is
+  specified, channel must be specified too, but may be zero.
+- Example: network-management scan energy 11 2
+  - Scans channel 11 for its RSSI value for 77 milliseconds.
+
+network-management scan stop
+- Terminates a scan in progress.
+
+network-management gateway <border router flags:1> <prefix> <domain id:1> <preferred lifetime:4> <valid lifetime:4>
+- Configures the node as a gateway.
+- Prefix {} means no prefix.
+- Preferred lifetime and valid lifetime are measured in seconds.
+- Example: network-management gateway 0x32 "fd31:4159:2653:5897" 0 0 0
+  - Configures the node as a gateway for the prefix "fd31..." with provisioning
+    domain 0 using SLAAC.
+
+network-management global-addresses [<prefix>]
+- Returns the list of global addresses configured on the device.
+- Prefix is optional and may be omitted.
+- Example: network-management global-addresses "fd31:4159:2653:5897"
+  - Returns the list of global addresses configured for the prefix "fd31..." on
+    the device.
+
+network-management global-prefixes
+- Returns the list of global prefixes known to the device.
+
+versions
+- Gets version information from the stack.
+
+The UDP CLI plugin contributes the following commands to the application:
+
+udp listen <port:2> <address>
+- Sets up a listener for UDP messages for the given port and address.
+- Example: udp listen 49152 "fd31:4159:2653:5897:9323:8462:6433:8327"
+  - Sets up port 49152 on "fd31..." as a listener for UDP messages.
+
+udp send <options:1> <destination> <hop limit:1> <source port:2> <destination port:2> <payload>
+- Sends a UDP message to an IPv6 address with the given parameters.
+- Example: udp send 0 "fd31:4159:2653:5897:9323:8462:6433:8327" 1 49152 65535 "example message"
+  - Sends "example message" from port 49152 to port 65535 on "fd31..." over 1
+    hop with with no options.
+
+
+Four sample applications are provided to demonstrate a simple wireless sensor
+network using the Thread stack.  The server application is a router and acts as
+a data sink.  It collects information from client nodes that act as sensors.
+The server can be run on either an SoC or on a host connected to an NCP.  There
+are two types of client nodes, both of which run on an SoC: routers and sleepy
+end devices.  The client and server communicate using the Constrained
+Application Protocol (CoAP) at the application layer, with UDP serving as the
+transport layer.  Additional information is contained within each application
+and is viewable in AppBuilder.

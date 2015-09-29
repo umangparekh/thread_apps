@@ -1,0 +1,187 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:31
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\global-address-prefix-debug\global-address-prefix-debug.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\global-address-prefix-debug\global-address-prefix-debug.c
+#        -D APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"global-address-prefix-debug.c\"" -D BOARD_DEV0680ETM
+#        -D "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\global-address-prefix-debug\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\global-address-prefix-debug.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\global-address-prefix-debug.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\global-address-prefix-debug\global-address-prefix-debug.c
+      1          // Copyright 2015 Silicon Laboratories, Inc.
+      2          
+      3          #include PLATFORM_HEADER
+      4          #include CONFIGURATION_HEADER
+      5          #include EMBER_AF_API_STACK
+      6          #include EMBER_AF_API_HAL
+      7          #ifdef EMBER_AF_API_DEBUG_PRINT
+      8            #include EMBER_AF_API_DEBUG_PRINT
+      9          #endif
+     10          
+     11          #ifndef ALIAS
+     12            #define ALIAS(x) x
+     13          #endif
+     14          
+
+   \                                 In section .text, align 2, keep-with-next
+     15          void ALIAS(emberGetGlobalAddressReturn)(const EmberIpv6Address *address,
+     16                                                  uint32_t preferredLifetime,
+     17                                                  uint32_t validLifetime,
+     18                                                  uint8_t addressFlags)
+     19          {
+   \                     emberGetGlobalAddressReturn: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0x4604             MOV      R4,R0
+     20            emberAfCorePrint("global address: ");
+   \   00000004   0x.... 0x....      ADR.W    R1,?_0
+   \   00000008   0x2001             MOVS     R0,#+1
+   \   0000000A   0x.... 0x....      BL       emberAfPrint
+     21            emberAfCoreDebugExec(emberAfPrintIpv6Address(address));
+   \   0000000E   0x2001             MOVS     R0,#+1
+   \   00000010   0x.... 0x....      BL       emberAfPrintEnabled
+   \   00000014   0xB110             CBZ.N    R0,??emberGetGlobalAddressReturn_0
+   \   00000016   0x4620             MOV      R0,R4
+   \   00000018   0x.... 0x....      BL       emberAfPrintIpv6Address
+     22            emberAfCorePrintln("");
+   \                     ??emberGetGlobalAddressReturn_0: (+1)
+   \   0000001C   0x....             B.N      ?Subroutine0
+     23          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine0: (+1)
+   \   00000000   0xE8BD 0x4010      POP      {R4,LR}
+   \   00000004   0x....             ADR.N    R1,??DataTable3  ;; ""
+   \   00000006   0x2001             MOVS     R0,#+1
+   \   00000008   0x.... 0x....      B.W      emberAfPrintln
+     24          
+
+   \                                 In section .text, align 2, keep-with-next
+     25          void ALIAS(emberGetGlobalPrefixReturn)(uint8_t borderRouterFlags,
+     26                                                 const uint8_t *prefix,
+     27                                                 uint8_t domainId,
+     28                                                 uint32_t preferredLifetime,
+     29                                                 uint32_t validLifetime)
+     30          {
+   \                     emberGetGlobalPrefixReturn: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0x460C             MOV      R4,R1
+     31            emberAfCorePrint("global prefix: ");
+   \   00000004   0x.... 0x....      ADR.W    R1,?_2
+   \   00000008   0x2001             MOVS     R0,#+1
+   \   0000000A   0x.... 0x....      BL       emberAfPrint
+     32            emberAfCoreDebugExec(emberAfPrintIpv6Prefix((const EmberIpv6Prefix *)prefix));
+   \   0000000E   0x2001             MOVS     R0,#+1
+   \   00000010   0x.... 0x....      BL       emberAfPrintEnabled
+   \   00000014   0xB110             CBZ.N    R0,??emberGetGlobalPrefixReturn_0
+   \   00000016   0x4620             MOV      R0,R4
+   \   00000018   0x.... 0x....      BL       emberAfPrintIpv6Prefix
+     33            emberAfCorePrintln("");
+   \                     ??emberGetGlobalPrefixReturn_0: (+1)
+   \   0000001C                      REQUIRE ?Subroutine0
+   \   0000001C                      ;; // Fall through to label ?Subroutine0
+     34          }
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable3:
+   \   00000000   0x00 0x00          DC8      "",0x0,0x0,0x0
+   \              0x00 0x00    
+
+   \                                 In section .rodata, align 1, keep-with-next
+   \                     ?_1:
+   \   00000000   0x00               DC8 ""
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_0:
+   \   00000000   0x67 0x6C          DC8 "global address: "
+   \              0x6F 0x62    
+   \              0x61 0x6C    
+   \              0x20 0x61    
+   \              0x64 0x64    
+   \              0x72 0x65    
+   \              0x73 0x73    
+   \              0x3A 0x20    
+   \              0x00         
+   \   00000011   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x67 0x6C          DC8 "global prefix: "
+   \              0x6F 0x62    
+   \              0x61 0x6C    
+   \              0x20 0x70    
+   \              0x72 0x65    
+   \              0x66 0x69    
+   \              0x78 0x3A    
+   \              0x20 0x00    
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   emberGetGlobalAddressReturn
+         8   -> emberAfPrint
+         8   -> emberAfPrintEnabled
+         8   -> emberAfPrintIpv6Address
+         0   -> emberAfPrintln
+       8   emberGetGlobalPrefixReturn
+         8   -> emberAfPrint
+         8   -> emberAfPrintEnabled
+         8   -> emberAfPrintIpv6Prefix
+         0   -> emberAfPrintln
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable3
+      12  ?Subroutine0
+      20  ?_0
+       1  ?_1
+      16  ?_2
+      30  emberGetGlobalAddressReturn
+      28  emberGetGlobalPrefixReturn
+
+ 
+   1 byte  in section .rodata
+ 110 bytes in section .text
+ 
+ 110 bytes of CODE  memory
+   1 byte  of CONST memory
+
+Errors: none
+Warnings: none

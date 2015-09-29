@@ -1,0 +1,429 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  13:29:29
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\main\main.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\main\main.c -D APP_BTL
+#        -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D PHY_EM3XX -D
+#        "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"main.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\main\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\main.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\main.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\main\main.c
+      1          // Copyright 2015 Silicon Laboratories, Inc.
+      2          
+      3          #include PLATFORM_HEADER
+      4          #include CONFIGURATION_HEADER
+      5          #include EMBER_AF_API_STACK
+      6          #include EMBER_AF_API_HAL
+      7          #include "thread-bookkeeping.h"
+      8          
+      9          // If serial functionality is enabled, we will initiaze the serial ports during
+     10          // startup.  This has to happen after the HAL is initiazed.
+     11          #ifdef EMBER_AF_API_SERIAL
+     12            #include EMBER_AF_API_SERIAL
+     13            #define SERIAL_INIT EMBER_AF_SERIAL_PORT_INIT
+     14          #else
+     15            #define SERIAL_INIT()
+     16          #endif
+     17          
+     18          // If printing is enabled, we will print some diagnostic information about the
+     19          // most recent reset and also during runtime.  On some platforms, extended
+     20          // diagnostic information is available.
+     21          #if defined(EMBER_AF_API_SERIAL) && defined(EMBER_AF_PRINT_ENABLE)
+     22            #ifdef EMBER_AF_API_DIAGNOSTIC_CORTEXM3
+     23              #include EMBER_AF_API_DIAGNOSTIC_CORTEXM3
+     24            #endif
+     25            static void printResetInformation(void);
+     26            #define PRINT_RESET_INFORMATION printResetInformation
+     27            #define emberAfGuaranteedPrint(...) \
+     28              emberSerialGuaranteedPrintf(APP_SERIAL, __VA_ARGS__)
+     29            #define emberAfGuaranteedPrintln(format, ...) \
+     30              emberSerialGuaranteedPrintf(APP_SERIAL, format "\r\n", __VA_ARGS__);
+     31          #else
+     32            #define PRINT_RESET_INFORMATION()
+     33            #define emberAfGuaranteedPrint(...)
+     34            #define emberAfGuaranteedPrintln(...)
+     35          #endif
+     36          
+     37          #ifdef EMBER_AF_API_MANAGEMENT_CLIENT
+     38            #include EMBER_AF_API_MANAGEMENT_CLIENT
+     39            #define PROCESS_MANAGEMENT_COMMAND processManagementCommand
+     40          #else
+     41            #define PROCESS_MANAGEMENT_COMMAND()
+     42          #endif
+     43          
+     44          // Our entry point is typically main(), except during testing.
+     45          #ifdef EMBER_TEST
+     46            #define MAIN nodeMain
+     47          #else
+     48            #define MAIN main
+     49          #endif
+     50          
+
+   \                                 In section .bss, align 1
+     51          static bool init = false;
+   \                     init:
+   \   00000000                      DS8 1
+     52          static void loop(void);
+     53          
+     54          extern const EmberEventData emAppEvents[];
+     55          EmberTaskId emAppTask;
+   \                     emAppTask:
+   \   00000001                      DS8 1
+     56          
+
+   \                                 In section .text, align 2, keep-with-next
+     57          int MAIN(MAIN_FUNCTION_PARAMETERS)
+     58          {
+   \                     main: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+     59            // Let the application and plugins do early initialization.  This function is
+     60            // generated.
+     61            emberAfMain(MAIN_FUNCTION_ARGUMENTS);
+   \   00000002   0x.... 0x....      BL       emberAfMain
+     62          
+     63            // Initialize the HAL and enable interrupts.
+     64            halInit();
+   \   00000006   0x.... 0x....      BL       halInit
+     65            INTERRUPTS_ON();
+   \   0000000A   0x.... 0x....      BL       _enableBasePri
+     66          
+     67            // Initialize the serial ports.
+     68            SERIAL_INIT();
+   \   0000000E   0x2301             MOVS     R3,#+1
+   \   00000010   0x2200             MOVS     R2,#+0
+   \   00000012   0x210F             MOVS     R1,#+15
+   \   00000014   0x2000             MOVS     R0,#+0
+   \   00000016   0x.... 0x....      BL       emberSerialInit
+   \   0000001A   0x2301             MOVS     R3,#+1
+   \   0000001C   0x2200             MOVS     R2,#+0
+   \   0000001E   0x210F             MOVS     R1,#+15
+   \   00000020   0x4618             MOV      R0,R3
+   \   00000022   0x.... 0x....      BL       emberSerialInit
+   \   00000026   0x2301             MOVS     R3,#+1
+   \   00000028   0x2200             MOVS     R2,#+0
+   \   0000002A   0x210F             MOVS     R1,#+15
+   \   0000002C   0x2003             MOVS     R0,#+3
+   \   0000002E   0x.... 0x....      BL       emberSerialInit
+     69          
+     70            // Display diagnostic information about the most recent reset.
+     71            PRINT_RESET_INFORMATION();
+   \   00000032   0x.... 0x....      BL       halGetResetString
+   \   00000036   0x4604             MOV      R4,R0
+   \   00000038   0x.... 0x....      BL       halGetResetInfo
+   \   0000003C   0x4602             MOV      R2,R0
+   \   0000003E   0x4623             MOV      R3,R4
+   \   00000040   0x.... 0x....      ADR.W    R1,?_0
+   \   00000044   0x2001             MOVS     R0,#+1
+   \   00000046   0x.... 0x....      BL       emberSerialGuaranteedPrintf
+   \   0000004A   0x.... 0x....      BL       halGetExtendedResetString
+   \   0000004E   0x4604             MOV      R4,R0
+   \   00000050   0x.... 0x....      BL       halGetExtendedResetInfo
+   \   00000054   0x4602             MOV      R2,R0
+   \   00000056   0x4623             MOV      R3,R4
+   \   00000058   0x.... 0x....      ADR.W    R1,?_1
+   \   0000005C   0x2001             MOVS     R0,#+1
+   \   0000005E   0x.... 0x....      BL       emberSerialGuaranteedPrintf
+   \   00000062   0xF240 0x74A1      MOVW     R4,#+1953
+   \   00000066   0x.... 0x....      BL       halGetResetInfo
+   \   0000006A   0xFA24 0xF000      LSR      R0,R4,R0
+   \   0000006E   0x07C0             LSLS     R0,R0,#+31
+   \   00000070   0xD508             BPL.N    ??main_0
+   \   00000072   0x2001             MOVS     R0,#+1
+   \   00000074   0x.... 0x....      BL       halPrintCrashSummary
+   \   00000078   0x2001             MOVS     R0,#+1
+   \   0000007A   0x.... 0x....      BL       halPrintCrashDetails
+   \   0000007E   0x2001             MOVS     R0,#+1
+   \   00000080   0x.... 0x....      BL       halPrintCrashData
+     72          
+     73            // Initialize a task for the application and plugin events and enable idling.
+     74            emAppTask = emberTaskInit(emAppEvents);
+   \                     ??main_0: (+1)
+   \   00000084   0x....             LDR.N    R4,??DataTable5
+   \   00000086   0x....             LDR.N    R0,??DataTable5_1
+   \   00000088   0x.... 0x....      BL       emberTaskInit
+   \   0000008C   0x7060             STRB     R0,[R4, #+1]
+     75            emberTaskEnableIdling(true);
+   \   0000008E   0x2001             MOVS     R0,#+1
+   \   00000090   0x.... 0x....      BL       emTaskEnableIdling
+     76          
+     77            // Initialize the stack and wait until it finishes.  We do this so that the
+     78            // application doesn't get ahead of the stack.
+     79            emberInit();
+   \   00000094   0x.... 0x....      BL       emberInit
+   \   00000098   0xE001             B.N      ??main_1
+     80            while (!init) {
+     81              halResetWatchdog();
+   \                     ??main_2: (+1)
+   \   0000009A   0x.... 0x....      BL       halInternalResetWatchDog
+     82              PROCESS_MANAGEMENT_COMMAND();
+     83            }
+   \                     ??main_1: (+1)
+   \   0000009E   0x7820             LDRB     R0,[R4, #+0]
+   \   000000A0   0x2800             CMP      R0,#+0
+   \   000000A2   0xD0FA             BEQ.N    ??main_2
+     84            init = false;
+   \   000000A4   0x2000             MOVS     R0,#+0
+   \   000000A6   0x7020             STRB     R0,[R4, #+0]
+     85          
+     86            // Initialize the application and plugins.  This function is generated.
+     87            emberAfInit();
+   \   000000A8   0x.... 0x....      BL       emberAfInit
+     88          
+     89            // Run the application loop, which usually never terminates.
+     90            loop();
+   \                     ??main_3: (+1)
+   \   000000AC   0x.... 0x....      BL       halInternalResetWatchDog
+   \   000000B0   0x7820             LDRB     R0,[R4, #+0]
+   \   000000B2   0xB118             CBZ.N    R0,??main_4
+   \   000000B4   0x2000             MOVS     R0,#+0
+   \   000000B6   0x7020             STRB     R0,[R4, #+0]
+   \   000000B8   0x.... 0x....      BL       emberAfInit
+   \                     ??main_4: (+1)
+   \   000000BC   0x.... 0x....      BL       emberAfTick
+   \   000000C0   0x7860             LDRB     R0,[R4, #+1]
+   \   000000C2   0x.... 0x....      BL       emberRunTask
+   \   000000C6   0xE7F1             B.N      ??main_3
+     91          
+     92            return 0;
+     93          }
+     94          
+     95          static void loop(void)
+     96          {
+     97            while (true) {
+     98              // Reset the watchdog timer to prevent a timeout.
+     99              halResetWatchdog();
+    100          
+    101              PROCESS_MANAGEMENT_COMMAND();
+    102          
+    103              if (init) {
+    104                init = false;
+    105                emberAfInit();
+    106              }
+    107          
+    108              // Let the stack, application, and plugins run periodic tasks.  This
+    109              // function is generated.
+    110              emberAfTick();
+    111          
+    112              // Run the application and plugin events.
+    113              emberRunTask(emAppTask);
+    114          
+    115              simulatedTimePassesMs(emberMsToNextEvent(emAppEvents, MAX_INT32U_VALUE));
+    116            }
+    117          }
+    118          
+    119          #ifdef EMBER_AF_PRINT_ENABLE
+    120          
+    121          static void printResetInformation(void)
+    122          {
+    123            // Information about the most recent reset is printed during startup to aid
+    124            // in debugging.
+    125            emberAfGuaranteedPrintln("Reset info: 0x%x (%p)",
+    126                                     halGetResetInfo(),
+    127                                     halGetResetString());
+    128          #ifdef EMBER_AF_API_DIAGNOSTIC_CORTEXM3
+    129            emberAfGuaranteedPrintln("Extended reset info: 0x%2x (%p)",
+    130                                     halGetExtendedResetInfo(),
+    131                                     halGetExtendedResetString());
+    132            if (halResetWasCrash()) {
+    133              halPrintCrashSummary(APP_SERIAL);
+    134              halPrintCrashDetails(APP_SERIAL);
+    135              halPrintCrashData(APP_SERIAL);
+    136            }
+    137          #endif // EMBER_AF_API_DIAGNOSTIC_CORTEXM3
+    138          }
+    139          
+    140          #endif // EMBER_AF_PRINT_ENABLE
+    141          
+
+   \                                 In section .text, align 2, keep-with-next
+    142          void emberInitReturn(EmberStatus status)
+    143          {
+   \                     emberInitReturn: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0x4604             MOV      R4,R0
+    144            // If initialization fails, we have to assert because something is wrong.
+    145            emberAfGuaranteedPrintln("Init: 0x%x", status);
+   \   00000004   0x4622             MOV      R2,R4
+   \   00000006   0x.... 0x....      ADR.W    R1,?_2
+   \   0000000A   0x2001             MOVS     R0,#+1
+   \   0000000C   0x.... 0x....      BL       emberSerialGuaranteedPrintf
+    146            assert(status == EMBER_SUCCESS);
+   \   00000010   0xB124             CBZ.N    R4,??emberInitReturn_0
+   \   00000012   0x2192             MOVS     R1,#+146
+   \   00000014   0x.... 0x....      ADR.W    R0,?_3
+   \   00000018   0x.... 0x....      BL       halInternalAssertFailed
+    147            init = true;
+   \                     ??emberInitReturn_0: (+1)
+   \   0000001C   0x....             LDR.N    R1,??DataTable5
+   \   0000001E   0x2001             MOVS     R0,#+1
+   \   00000020   0x7008             STRB     R0,[R1, #+0]
+    148          
+    149          #ifdef EMBER_AF_API_TFTP_BOOTLOAD_TARGET
+    150            emInitializeTftpServer();
+    151            emInitializeTftpBootloader();
+    152          #endif
+    153          }
+   \   00000022   0xBD10             POP      {R4,PC}          ;; return
+    154          
+    155          // TODO: This should not be necessary in the application.  See EMIPSTACK-324.
+
+   \                                 In section .text, align 2, keep-with-next
+    156          bool ipModemLinkPreparingForPowerDown(void)
+    157          {
+    158            return false;
+   \                     ipModemLinkPreparingForPowerDown: (+1)
+   \   00000000   0x2000             MOVS     R0,#+0
+   \   00000002   0x4770             BX       LR               ;; return
+    159          }
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable5:
+   \   00000000   0x........         DC32     init
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable5_1:
+   \   00000000   0x........         DC32     emAppEvents
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_0:
+   \   00000000   0x52 0x65          DC8 "Reset info: 0x%x (%p)\015\012"
+   \              0x73 0x65    
+   \              0x74 0x20    
+   \              0x69 0x6E    
+   \              0x66 0x6F    
+   \              0x3A 0x20    
+   \              0x30 0x78    
+   \              0x25 0x78    
+   \              0x20 0x28    
+   \              0x25 0x70    
+   \              0x29 0x0D    
+   \              0x0A 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x45 0x78          DC8 "Extended reset info: 0x%2x (%p)\015\012"
+   \              0x74 0x65    
+   \              0x6E 0x64    
+   \              0x65 0x64    
+   \              0x20 0x72    
+   \              0x65 0x73    
+   \              0x65 0x74    
+   \              0x20 0x69    
+   \              0x6E 0x66    
+   \              0x6F 0x3A    
+   \              0x20 0x30    
+   \              0x78 0x25    
+   \              0x32 0x78    
+   \              0x20 0x28    
+   \              0x25 0x70    
+   \              0x29 0x0D    
+   \              0x0A 0x00    
+   \   00000022   0x00 0x00          DC8 0, 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x49 0x6E          DC8 "Init: 0x%x\015\012"
+   \              0x69 0x74    
+   \              0x3A 0x20    
+   \              0x30 0x78    
+   \              0x25 0x78    
+   \              0x0D 0x0A    
+   \              0x00         
+   \   0000000D   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_3:
+   \   00000000   0x6D 0x61          DC8 "main.c"
+   \              0x69 0x6E    
+   \              0x2E 0x63    
+   \              0x00         
+   \   00000007   0x00               DC8 0
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   emberInitReturn
+         8   -> emberSerialGuaranteedPrintf
+         8   -> halInternalAssertFailed
+       0   ipModemLinkPreparingForPowerDown
+       8   main
+         8   -> _enableBasePri
+         8   -> emTaskEnableIdling
+         8   -> emberAfInit
+         8   -> emberAfMain
+         8   -> emberAfTick
+         8   -> emberInit
+         8   -> emberRunTask
+         8   -> emberSerialGuaranteedPrintf
+         8   -> emberSerialInit
+         8   -> emberTaskInit
+         8   -> halGetExtendedResetInfo
+         8   -> halGetExtendedResetString
+         8   -> halGetResetInfo
+         8   -> halGetResetString
+         8   -> halInit
+         8   -> halInternalResetWatchDog
+         8   -> halPrintCrashData
+         8   -> halPrintCrashDetails
+         8   -> halPrintCrashSummary
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable5
+       4  ??DataTable5_1
+      24  ?_0
+      36  ?_1
+      16  ?_2
+       8  ?_3
+      36  emberInitReturn
+       2  init
+          emAppTask
+       4  ipModemLinkPreparingForPowerDown
+     200  main
+
+ 
+   2 bytes in section .bss
+ 332 bytes in section .text
+ 
+ 332 bytes of CODE memory
+   2 bytes of DATA memory
+
+Errors: none
+Warnings: none

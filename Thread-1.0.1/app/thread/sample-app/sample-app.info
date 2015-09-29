@@ -1,0 +1,58 @@
+client {
+  name=Client
+  dir=client-server/client
+  isc=client-server/client/client.isc
+  include=client-implementation.c
+  This client application acts as a data sensor in a wireless sensor network.
+  It reports information to a server node that acts as a sink.
+}
+
+client-sleepy {
+  name=Client (Sleepy)
+  dir=client-server/client-sleepy
+  isc=client-server/client-sleepy/client-sleepy.isc
+  include=client-sleepy-implementation.c
+  This client application acts as a sleepy data sensor in a wireless sensor
+  network.  It reports information to a server node that acts as a sink.
+}
+
+demo {
+  name=Demo
+  dir=demo
+  isc=demo/demo.isc
+  include=demo-implementation.c
+  A push-button demonstration of forming and joining and basic messaging.
+}
+
+ncp-uart {
+  name=NCP UART
+  dir=ncp-uart
+  isc=ncp-uart/ncp-uart.isc
+  The standard NCP application with UART support.
+}
+
+server {
+  name=Server
+  dir=client-server/server
+  isc=client-server/server/server.isc
+  include=server-implementation.c
+  This server application acts as a data sink in a wireless sensor network.  It
+  collects information from client nodes that act as sensors.
+}
+
+server-host {
+  name=Server (Host)
+  dir=client-server/server-host
+  isc=client-server/server-host/server-host.isc
+  include=getData.php,sensors.html,server-host-implementation.c
+  This server application acts as a data sink in a wireless sensor network.  It
+  collects information from client nodes that act as sensors.
+}
+
+test {
+  name=Test
+  dir=../test-app/test
+  isc=../test-app/test/test.isc
+  include=test-implementation.c
+  This is a test application that is used in make test.
+}

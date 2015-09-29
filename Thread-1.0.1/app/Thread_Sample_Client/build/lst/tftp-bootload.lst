@@ -1,0 +1,90 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:36
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\tftp-bootload-target\tftp-bootload.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\tftp-bootload-target\tftp-bootload.c
+#        -D APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"tftp-bootload.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\tftp-bootload-target\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\tftp-bootload.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\tftp-bootload.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\thread\plugin\tftp-bootload-target\tftp-bootload.c
+      1          //Copyright 2015 Silicon Laboratories, Inc.
+      2          
+      3          #include PLATFORM_HEADER
+      4          #include CONFIGURATION_HEADER
+      5          #include EMBER_AF_API_STACK
+      6          #ifdef EMBER_AF_API_DEBUG_PRINT
+      7            #include EMBER_AF_API_DEBUG_PRINT
+      8          #endif
+      9          #include "thread-bookkeeping.h"
+     10          #include "thread-callbacks.h"
+     11          #include "stack/framework/buffer-management.h"
+     12          #include "stack/ip/mark-list.h"
+     13          
+
+   \                                 In section .text, align 4, keep-with-next
+     14          void emberAfTftpBootloaderInit(void)
+     15          {
+     16            emAddMarkingFunction(emMarkTftpBootloaderBuffers);
+   \                     emberAfTftpBootloaderInit: (+1)
+   \   00000000   0x4801             LDR.N    R0,??emberAfTftpBootloaderInit_0
+   \   00000002   0x.... 0x....      B.W      emAddMarkingFunction
+   \   00000006   0xBF00             Nop      
+   \                     ??emberAfTftpBootloaderInit_0:
+   \   00000008   0x........         DC32     emMarkTftpBootloaderBuffers
+     17          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   emberAfTftpBootloaderInit
+         0   -> emAddMarkingFunction
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  emberAfTftpBootloaderInit
+
+ 
+ 12 bytes in section .text
+ 
+ 12 bytes of CODE memory
+
+Errors: none
+Warnings: none

@@ -1,0 +1,294 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  14:43:39
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\token-def.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\token-def.c -D APP_BTL
+#        -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D PHY_EM3XX -D
+#        "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"token-def.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\lst\token-def.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Client\build\obj\token-def.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\hal\micro\cortexm3\token-def.c
+      1          /** @file hal/micro/cortexm3/token-def.c
+      2           * @brief This file is for the code definitions (arrays) needed for the tokens.
+      3           *
+      4           * Copyright 2007-2011 by Ember Corporation. All rights reserved.           *80*
+      5           */
+      6          
+      7          #include PLATFORM_HEADER
+      8          #include "stack/include/ember.h"
+      9          
+     10          
+     11          //-- Build structure defines (these define all the data types of the tokens).
+     12          #define DEFINETYPES
+     13            #include "stack/config/token-stack.h"
+     14          #undef DEFINETYPES
+     15          
+     16          //-- Build parameter links
+     17          #define DEFINETOKENS
+     18          #define TOKEN_MFG(name,creator,iscnt,isidx,type,arraysize,...)
+     19          
+     20          #define TOKEN_DEF(name,creator,iscnt,isidx,type,arraysize,...) \
+     21            creator,
+
+   \                                 In section .rodata, align 4, keep-with-next
+     22            const uint16_t tokenCreators[] = {
+   \                     tokenCreators:
+   \   00000000   0xFF01 0xE263      DC16 65281, 57955, 58723, 53251, 53253, 53254, 53255, 53256, 53257
+   \              0xE563 0xD003
+   \              0xD005 0xD006
+   \              0xD007 0xD008
+   \              0xD009       
+   \   00000012   0xD00A 0xD245      DC16 53258, 53829
+   \   00000016   0x00 0x00          DC8 0, 0
+     23              #include "stack/config/token-stack.h"
+     24            };
+     25          #undef TOKEN_DEF
+     26          
+     27          #define TOKEN_DEF(name,creator,iscnt,isidx,type,arraysize,...) \
+     28            iscnt,
+
+   \                                 In section .rodata, align 4, keep-with-next
+     29            const bool tokenIsCnt[] = {
+   \                     tokenIsCnt:
+   \   00000000   0x00 0x01          DC8 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0
+   \              0x01 0x01    
+   \              0x01 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+     30              #include "stack/config/token-stack.h"
+     31            };
+     32          #undef TOKEN_DEF
+     33          
+     34          #define TOKEN_DEF(name,creator,iscnt,isidx,type,arraysize,...) \
+     35            sizeof(type),
+
+   \                                 In section .rodata, align 4, keep-with-next
+     36            const uint8_t tokenSize[] = {
+   \                     tokenSize:
+   \   00000000   0x02 0x04          DC8 2, 4, 4, 4, 4, 8, 8, 8, 80, 4, 4, 0
+   \              0x04 0x04    
+   \              0x04 0x08    
+   \              0x08 0x08    
+   \              0x50 0x04    
+   \              0x04 0x00    
+     37              #include "stack/config/token-stack.h"
+     38            };
+     39          #undef TOKEN_DEF
+     40          
+     41          #define TOKEN_DEF(name,creator,iscnt,isidx,type,arraysize,...) \
+     42            arraysize,
+
+   \                                 In section .rodata, align 4, keep-with-next
+     43            const uint8_t tokenArraySize[] = {
+   \                     tokenArraySize:
+   \   00000000   0x01 0x01          DC8 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 16, 0
+   \              0x01 0x01    
+   \              0x01 0x01    
+   \              0x01 0x01    
+   \              0x01 0x01    
+   \              0x10 0x00    
+     44              #include "stack/config/token-stack.h"
+     45            };
+     46          #undef TOKEN_DEF
+     47          
+     48          //These set of DEFAULT token values are only used in the tokenDefaults array
+     49          //below.
+     50          #define TOKEN_DEF(name,creator,iscnt,isidx,type,arraysize,...) \
+     51            const type TOKEN_##name##_DEFAULTS = __VA_ARGS__;
+     52            #include "stack/config/token-stack.h"
+
+   \                                 In section .rodata, align 2, keep-with-next
+   \   __absolute uint16_t const TOKEN_STACK_NVDATA_VERSION_DEFAULTS
+   \                     TOKEN_STACK_NVDATA_VERSION_DEFAULTS:
+   \   00000000   0x03FC             DC16 1020
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute uint32_t const TOKEN_STACK_BOOT_COUNTER_DEFAULTS
+   \                     TOKEN_STACK_BOOT_COUNTER_DEFAULTS:
+   \   00000000   0x00000000         DC32 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute uint32_t const TOKEN_STACK_NONCE_COUNTER_DEFAULTS
+   \                     TOKEN_STACK_NONCE_COUNTER_DEFAULTS:
+   \   00000000   0x00000000         DC32 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute uint32_t const TOKEN_IP_STACK_MULTICAST_SEQUENCE_DEFAULTS
+   \                     TOKEN_IP_STACK_MULTICAST_SEQUENCE_DEFAULTS:
+   \   00000000   0x00000000         DC32 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute uint32_t const TOKEN_IP_STACK_SECURITY_SEQUENCE_DEFAULTS
+   \                     TOKEN_IP_STACK_SECURITY_SEQUENCE_DEFAULTS:
+   \   00000000   0x00000000         DC32 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute struct <unnamed> const TOKEN_IP_STACK_MESH_LOCAL_INTERFACE_ID_DEFAULTS
+   \                     TOKEN_IP_STACK_MESH_LOCAL_INTERFACE_ID_DEFAULTS:
+   \   00000000   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute struct <unnamed> const TOKEN_IP_STACK_MAC_EXTENDED_ID_DEFAULTS
+   \                     TOKEN_IP_STACK_MAC_EXTENDED_ID_DEFAULTS:
+   \   00000000   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute struct <unnamed> const TOKEN_IP_STACK_PARENT_LONG_ID_DEFAULTS
+   \                     TOKEN_IP_STACK_PARENT_LONG_ID_DEFAULTS:
+   \   00000000   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute struct <unnamed> const TOKEN_IP_STACK_THREAD_DATA_DEFAULTS
+   \                     TOKEN_IP_STACK_THREAD_DATA_DEFAULTS:
+   \   00000000   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00         
+   \   00000011   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00         
+   \   00000028   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00         
+   \   00000039   0x00 0x00          DC8 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00 0x00    
+   \              0x00         
+   \   00000048   0x00000000         DC32 0
+   \   0000004C   0xFFFF             DC16 65535
+   \   0000004E   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute struct <unnamed> const TOKEN_IP_STACK_NODE_DATA_DEFAULTS
+   \                     TOKEN_IP_STACK_NODE_DATA_DEFAULTS:
+   \   00000000   0x0000             DC16 0
+   \   00000002   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \   __absolute struct <unnamed> const TOKEN_STACK_CAL_DATA_DEFAULTS
+   \                     TOKEN_STACK_CAL_DATA_DEFAULTS:
+   \   00000000   0x7F 0x80          DC8 127, 128, 127, 128
+   \              0x7F 0x80    
+     53          #undef TOKEN_DEF
+     54          
+     55          #define TOKEN_DEF(name,creator,iscnt,isidx,type,arraysize,...) \
+     56            ((void *)&TOKEN_##name##_DEFAULTS),
+
+   \                                 In section .rodata, align 4, keep-with-next
+     57            const void * const tokenDefaults[] = {
+   \                     tokenDefaults:
+   \   00000000   0x........         DC32 TOKEN_STACK_NVDATA_VERSION_DEFAULTS
+   \   00000004   0x........         DC32 TOKEN_STACK_BOOT_COUNTER_DEFAULTS
+   \   00000008   0x........         DC32 TOKEN_STACK_NONCE_COUNTER_DEFAULTS
+   \   0000000C   0x........         DC32 TOKEN_IP_STACK_MULTICAST_SEQUENCE_DEFAULTS
+   \   00000010   0x........         DC32 TOKEN_IP_STACK_SECURITY_SEQUENCE_DEFAULTS
+   \   00000014   0x........         DC32 TOKEN_IP_STACK_MESH_LOCAL_INTERFACE_ID_DEFAULTS
+   \   00000018   0x........         DC32 TOKEN_IP_STACK_MAC_EXTENDED_ID_DEFAULTS
+   \   0000001C   0x........         DC32 TOKEN_IP_STACK_PARENT_LONG_ID_DEFAULTS
+   \   00000020   0x........         DC32 TOKEN_IP_STACK_THREAD_DATA_DEFAULTS
+   \   00000024   0x........         DC32 TOKEN_IP_STACK_NODE_DATA_DEFAULTS, TOKEN_STACK_CAL_DATA_DEFAULTS
+   \              0x........   
+     58              #include "stack/config/token-stack.h"
+     59            };
+     60          #undef TOKEN_DEF
+     61          
+     62          #undef DEFINETOKENS
+     63          
+     64          #undef TOKEN_MFG
+     65          
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       8  TOKEN_IP_STACK_MAC_EXTENDED_ID_DEFAULTS
+       8  TOKEN_IP_STACK_MESH_LOCAL_INTERFACE_ID_DEFAULTS
+       4  TOKEN_IP_STACK_MULTICAST_SEQUENCE_DEFAULTS
+       4  TOKEN_IP_STACK_NODE_DATA_DEFAULTS
+       8  TOKEN_IP_STACK_PARENT_LONG_ID_DEFAULTS
+       4  TOKEN_IP_STACK_SECURITY_SEQUENCE_DEFAULTS
+      80  TOKEN_IP_STACK_THREAD_DATA_DEFAULTS
+       4  TOKEN_STACK_BOOT_COUNTER_DEFAULTS
+       4  TOKEN_STACK_CAL_DATA_DEFAULTS
+       4  TOKEN_STACK_NONCE_COUNTER_DEFAULTS
+       2  TOKEN_STACK_NVDATA_VERSION_DEFAULTS
+      12  tokenArraySize
+      24  tokenCreators
+      44  tokenDefaults
+      12  tokenIsCnt
+      12  tokenSize
+
+ 
+ 234 bytes in section .rodata
+ 
+ 234 bytes of CONST memory
+
+Errors: none
+Warnings: none

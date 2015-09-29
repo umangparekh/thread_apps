@@ -1,0 +1,338 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  13:29:34
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\util\bootload\tftp-bootloader\tftp-bootloader.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\util\bootload\tftp-bootloader\tftp-bootloader.c
+#        -D APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"tftp-bootloader.c\"" -D BOARD_DEV0680ETM -D
+#        "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\util\bootload\tftp-bootloader\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\tftp-bootloader.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\tftp-bootloader.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\util\bootload\tftp-bootloader\tftp-bootloader.c
+      1          // File: tftp-bootloader.c
+      2          //
+      3          // Description: TftpBootloader functionality.
+      4          //              TftpBootloader is a bootloading protocol.
+      5          //
+      6          // Copyright 2013 by Silicon Laboratories. All rights reserved.             *80*
+      7          
+      8          #include PLATFORM_HEADER
+      9          #include "stack/include/ember.h"
+     10          #include "stack/core/log.h"
+     11          #include "stack/framework/buffer-management.h"
+     12          #include "app/util/bootload/tftp-bootloader/tftp-bootloader.h"
+     13          
+
+   \                                 In section .bss, align 2
+     14          Buffer emTftpBootloaderRemoteAddress = NULL_BUFFER;
+   \                     emTftpBootloaderRemoteAddress:
+   \   00000000                      DS8 2
+     15          
+
+   \                                 In section .text, align 2, keep-with-next
+     16          bool emVerifyTftpBootloaderRemoteAddress(const uint8_t *source)
+     17          {
+   \                     emVerifyTftpBootloaderRemoteAddress: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0x4604             MOV      R4,R0
+     18            if (emTftpBootloaderRemoteAddress != NULL_BUFFER) {
+   \   00000004   0x....             LDR.N    R0,??DataTable6
+   \   00000006   0x8800             LDRH     R0,[R0, #+0]
+   \   00000008   0xB140             CBZ.N    R0,??emVerifyTftpBootloaderRemoteAddress_0
+     19              const EmberIpv6Address *address =
+     20                (const EmberIpv6Address*)emGetBufferPointer(emTftpBootloaderRemoteAddress);
+   \   0000000A   0x.... 0x....      BL       emGetBufferPointer
+     21              return (MEMCOMPARE(address->bytes, source, 16)
+     22                      == 0);
+   \   0000000E   0x2210             MOVS     R2,#+16
+   \   00000010   0x4621             MOV      R1,R4
+   \   00000012   0x.... 0x....      BL       halCommonMemCompare
+   \   00000016   0x1E40             SUBS     R0,R0,#+1
+   \   00000018   0x4180             SBCS     R0,R0,R0
+   \   0000001A   0x0FC0             LSRS     R0,R0,#+31
+     23            }
+     24          
+     25            return false;
+   \                     ??emVerifyTftpBootloaderRemoteAddress_0: (+1)
+   \   0000001C   0xBD10             POP      {R4,PC}          ;; return
+     26          }
+     27          
+
+   \                                 In section .text, align 2, keep-with-next
+     28          void emTftpBootloaderErrorHandler(const uint8_t *source)
+     29          {
+     30            emLogLine(BOOTLOAD, "Got a packet from a server != server");
+   \                     emTftpBootloaderErrorHandler: (+1)
+   \   00000000   0x.... 0x....      ADR.W    R1,?_0
+   \   00000004   0x2017             MOVS     R0,#+23
+   \   00000006   0x.... 0x....      B.W      emReallyLogLine
+     31          }
+     32          
+
+   \                                 In section .text, align 2, keep-with-next
+     33          const EmberIpv6Address *emGetTftpBootloaderRemoteAddress(void)
+     34          {
+   \                     emGetTftpBootloaderRemoteAddress: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+     35            if (emTftpBootloaderRemoteAddress == NULL_BUFFER) {
+   \   00000002   0x....             LDR.N    R4,??DataTable6
+   \   00000004   0x8820             LDRH     R0,[R4, #+0]
+   \   00000006   0xB910             CBNZ.N   R0,??CrossCallReturnLabel_2
+     36              // help the debugger
+     37              assert(false);
+   \   00000008   0x2125             MOVS     R1,#+37
+   \   0000000A   0x.... 0x....      BL       ?Subroutine0
+     38            }
+     39          
+     40            return (const EmberIpv6Address*)emGetBufferPointer(emTftpBootloaderRemoteAddress);
+   \                     ??CrossCallReturnLabel_2: (+1)
+   \   0000000E   0x8820             LDRH     R0,[R4, #+0]
+   \   00000010   0xE8BD 0x4010      POP      {R4,LR}
+   \   00000014   0x.... 0x....      B.W      emGetBufferPointer
+     41          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine0: (+1)
+   \   00000000   0x.... 0x....      ADR.W    R0,?_1
+   \   00000004   0x.... 0x....      B.W      halInternalAssertFailed
+     42          
+
+   \                                 In section .text, align 2, keep-with-next
+     43          void emInitializeBaseTftpBootloaderFunctionality(void)
+     44          {
+   \                     emInitializeBaseTftpBootloaderFunctionality: (+1)
+   \   00000000   0xB500             PUSH     {LR}
+   \   00000002   0xB085             SUB      SP,SP,#+20
+     45            EmberIpv6Address localAddress;
+     46            assert(emberGetLocalIpAddress(0, &localAddress));
+   \   00000004   0xA900             ADD      R1,SP,#+0
+   \   00000006   0x2000             MOVS     R0,#+0
+   \   00000008   0x.... 0x....      BL       emberGetLocalIpAddress
+   \   0000000C   0xB910             CBNZ.N   R0,??CrossCallReturnLabel_1
+   \   0000000E   0x212E             MOVS     R1,#+46
+   \   00000010   0x.... 0x....      BL       ?Subroutine0
+     47            emberUdpListen(TFTP_BOOTLOADER_PORT, localAddress.bytes);
+   \                     ??CrossCallReturnLabel_1: (+1)
+   \   00000014   0xA900             ADD      R1,SP,#+0
+   \   00000016   0x2044             MOVS     R0,#+68
+   \   00000018   0x.... 0x....      BL       emberUdpListen
+     48            emLogLine(BOOTLOAD, "Initializing tftp-bootloader, listening on port %u", TFTP_BOOTLOADER_PORT);
+   \   0000001C   0x2244             MOVS     R2,#+68
+   \   0000001E   0x.... 0x....      ADR.W    R1,?_2
+   \   00000022   0x2017             MOVS     R0,#+23
+   \   00000024   0x.... 0x....      BL       emReallyLogLine
+     49          }
+   \   00000028   0xB005             ADD      SP,SP,#+20
+   \   0000002A   0xBD00             POP      {PC}             ;; return
+     50          
+
+   \                                 In section .text, align 2, keep-with-next
+     51          void emSetTftpBootloaderRemoteAddress(const uint8_t *address)
+     52          {
+   \                     emSetTftpBootloaderRemoteAddress: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+   \   00000002   0x4604             MOV      R4,R0
+     53            emLogLine(BOOTLOAD, "setting tftp-bootloader remote address");
+   \   00000004   0x.... 0x....      ADR.W    R1,?_3
+   \   00000008   0x2017             MOVS     R0,#+23
+   \   0000000A   0x.... 0x....      BL       emReallyLogLine
+     54            emTftpBootloaderRemoteAddress = emAllocateBuffer(sizeof(EmberIpv6Address));
+   \   0000000E   0x2100             MOVS     R1,#+0
+   \   00000010   0x2010             MOVS     R0,#+16
+   \   00000012   0x.... 0x....      BL       emReallyAllocateBuffer
+   \   00000016   0x....             LDR.N    R5,??DataTable6
+   \   00000018   0x8028             STRH     R0,[R5, #+0]
+     55            assert(emTftpBootloaderRemoteAddress != NULL_BUFFER);
+   \   0000001A   0xB910             CBNZ.N   R0,??CrossCallReturnLabel_0
+   \   0000001C   0x2137             MOVS     R1,#+55
+   \   0000001E   0x.... 0x....      BL       ?Subroutine0
+     56            EmberIpv6Address *ipv6Address =
+     57              (EmberIpv6Address*)emGetBufferPointer(emTftpBootloaderRemoteAddress);
+   \                     ??CrossCallReturnLabel_0: (+1)
+   \   00000022   0x8828             LDRH     R0,[R5, #+0]
+   \   00000024   0x.... 0x....      BL       emGetBufferPointer
+     58            MEMCOPY(ipv6Address->bytes, address, 16);
+   \   00000028   0x4621             MOV      R1,R4
+   \   0000002A   0xE8BD 0x4038      POP      {R3-R5,LR}
+   \   0000002E   0x2210             MOVS     R2,#+16
+   \   00000030   0x.... 0x....      B.W      halCommonMemMove
+     59          }
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable6:
+   \   00000000   0x........         DC32     emTftpBootloaderRemoteAddress
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_0:
+   \   00000000   0x47 0x6F          DC8 "Got a packet from a server != server"
+   \              0x74 0x20    
+   \              0x61 0x20    
+   \              0x70 0x61    
+   \              0x63 0x6B    
+   \              0x65 0x74    
+   \              0x20 0x66    
+   \              0x72 0x6F    
+   \              0x6D 0x20    
+   \              0x61 0x20    
+   \              0x73 0x65    
+   \              0x72 0x76    
+   \              0x65 0x72    
+   \              0x20 0x21    
+   \              0x3D 0x20    
+   \              0x73 0x65    
+   \              0x72 0x76    
+   \              0x65 0x72    
+   \              0x00         
+   \   00000025   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x74 0x66          DC8 "tftp-bootloader.c"
+   \              0x74 0x70    
+   \              0x2D 0x62    
+   \              0x6F 0x6F    
+   \              0x74 0x6C    
+   \              0x6F 0x61    
+   \              0x64 0x65    
+   \              0x72 0x2E    
+   \              0x63 0x00    
+   \   00000012   0x00 0x00          DC8 0, 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x49 0x6E          DC8 49H, 6EH, 69H, 74H, 69H, 61H, 6CH, 69H
+   \              0x69 0x74    
+   \              0x69 0x61    
+   \              0x6C 0x69    
+   \   00000008   0x7A 0x69          DC8 7AH, 69H, 6EH, 67H, 20H, 74H, 66H, 74H
+   \              0x6E 0x67    
+   \              0x20 0x74    
+   \              0x66 0x74    
+   \   00000010   0x70 0x2D          DC8 70H, 2DH, 62H, 6FH, 6FH, 74H, 6CH, 6FH
+   \              0x62 0x6F    
+   \              0x6F 0x74    
+   \              0x6C 0x6F    
+   \   00000018   0x61 0x64          DC8 61H, 64H, 65H, 72H, 2CH, 20H, 6CH, 69H
+   \              0x65 0x72    
+   \              0x2C 0x20    
+   \              0x6C 0x69    
+   \   00000020   0x73 0x74          DC8 73H, 74H, 65H, 6EH, 69H, 6EH, 67H, 20H
+   \              0x65 0x6E    
+   \              0x69 0x6E    
+   \              0x67 0x20    
+   \   00000028   0x6F 0x6E          DC8 6FH, 6EH, 20H, 70H, 6FH, 72H, 74H, 20H
+   \              0x20 0x70    
+   \              0x6F 0x72    
+   \              0x74 0x20    
+   \   00000030   0x25 0x75          DC8 25H, 75H, 0
+   \              0x00         
+   \   00000033   0x00               DC8 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_3:
+   \   00000000   0x73 0x65          DC8 "setting tftp-bootloader remote address"
+   \              0x74 0x74    
+   \              0x69 0x6E    
+   \              0x67 0x20    
+   \              0x74 0x66    
+   \              0x74 0x70    
+   \              0x2D 0x62    
+   \              0x6F 0x6F    
+   \              0x74 0x6C    
+   \              0x6F 0x61    
+   \              0x64 0x65    
+   \              0x72 0x20    
+   \              0x72 0x65    
+   \              0x6D 0x6F    
+   \              0x74 0x65    
+   \              0x20 0x61    
+   \              0x64 0x64    
+   \              0x72 0x65    
+   \              0x73 0x73    
+   \              0x00         
+   \   00000027   0x00               DC8 0
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   emGetTftpBootloaderRemoteAddress
+         0   -> emGetBufferPointer
+         8   -> halInternalAssertFailed
+      24   emInitializeBaseTftpBootloaderFunctionality
+        24   -> emReallyLogLine
+        24   -> emberGetLocalIpAddress
+        24   -> emberUdpListen
+        24   -> halInternalAssertFailed
+      16   emSetTftpBootloaderRemoteAddress
+        16   -> emGetBufferPointer
+        16   -> emReallyAllocateBuffer
+        16   -> emReallyLogLine
+         0   -> halCommonMemMove
+        16   -> halInternalAssertFailed
+       0   emTftpBootloaderErrorHandler
+         0   -> emReallyLogLine
+       8   emVerifyTftpBootloaderRemoteAddress
+         8   -> emGetBufferPointer
+         8   -> halCommonMemCompare
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable6
+       8  ?Subroutine0
+      40  ?_0
+      20  ?_1
+      52  ?_2
+      40  ?_3
+      24  emGetTftpBootloaderRemoteAddress
+      44  emInitializeBaseTftpBootloaderFunctionality
+      52  emSetTftpBootloaderRemoteAddress
+      10  emTftpBootloaderErrorHandler
+       2  emTftpBootloaderRemoteAddress
+      30  emVerifyTftpBootloaderRemoteAddress
+
+ 
+   2 bytes in section .bss
+ 324 bytes in section .text
+ 
+ 324 bytes of CODE memory
+   2 bytes of DATA memory
+
+Errors: none
+Warnings: none

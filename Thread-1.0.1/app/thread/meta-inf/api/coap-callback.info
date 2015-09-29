@@ -1,0 +1,14 @@
+#include PLATFORM_HEADER
+#include CONFIGURATION_HEADER
+#include EMBER_AF_API_STACK
+
+void emberCoapMessageHandler(const EmberIpv6Address *source,
+                             EmberCoapCode code,
+                             const uint8_t *token,
+                             uint8_t tokenLength,
+                             const uint8_t *uriPath,
+                             uint16_t uriPathLength,
+                             const uint8_t *payload,
+                             uint16_t payloadLength)
+{
+}

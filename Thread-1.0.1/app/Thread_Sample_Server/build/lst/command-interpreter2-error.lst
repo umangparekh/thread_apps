@@ -1,0 +1,773 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        28/Sep/2015  13:29:23
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\util\serial\command-interpreter2-error.c
+#    Command line =  
+#        C:\SiliconLabs\Thread-1.0.1\app\util\serial\command-interpreter2-error.c
+#        -D APP_BTL -D CORTEXM3 -D CORTEXM3_EMBER_MICRO -D CORTEXM3_EM3588 -D
+#        PHY_EM3XX -D "BOARD_HEADER=\"thread-board.h\"" -D
+#        "CONFIGURATION_HEADER=\"thread-configuration.h\"" -D
+#        "PLATFORM_HEADER=\"hal/micro/cortexm3/compiler/iar.h\"" -D
+#        "__SOURCEFILE__=\"command-interpreter2-error.c\"" -D BOARD_DEV0680ETM
+#        -D "EMBER_AF_API_EMBER_TYPES=\"stack/include/ember-types.h\"" -D
+#        EMBER_STACK_IP -D EMBER_RIP_STACK -D HAVE_TLS_JPAKE -D
+#        DEBUG_LEVEL=FULL_DEBUG -D
+#        "APPLICATION_TOKEN_HEADER=\"thread-token.h\"" -lC
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\
+#        --diag_suppress Pa050 -o
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\
+#        --debug --endian=little --cpu=Cortex-M3 --no_path_in_file_macros
+#        --separate_cluster_for_initialized_variables -e --fpu=None
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        7.0\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\SiliconLabs\Thread-1.0.1\app\util\serial\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\app\util\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\stack\
+#        -I C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\ -I
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\..\..\hal\..\
+#        -Ohz --use_c++_inline
+#    List file    =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\lst\command-interpreter2-error.lst
+#    Object file  =  
+#        C:\SiliconLabs\Thread-1.0.1\app\Thread_Sample_Server\build\obj\command-interpreter2-error.o
+#
+###############################################################################
+
+C:\SiliconLabs\Thread-1.0.1\app\util\serial\command-interpreter2-error.c
+      1          /**
+      2           * File: command-interpreter2-error.c
+      3           * Description: processes commands incoming over the serial port.
+      4           *
+      5           * Culprit(s): Richard Kelsey, Matteo Paris
+      6           *
+      7           * Copyright 2008 by Ember Corporation.  All rights reserved.               *80*
+      8           */
+      9          
+     10          #include PLATFORM_HEADER
+     11          
+     12          #ifdef EZSP_HOST
+     13            // Includes needed for ember related functions for the EZSP host
+     14            #include "stack/include/error.h"
+     15            #include "stack/include/ember-types.h"
+     16            #include "app/util/ezsp/ezsp-protocol.h"
+     17            #include "app/util/ezsp/ezsp.h"
+     18            #include "app/util/ezsp/serial-interface.h"
+     19            extern uint8_t emberEndpointCount;
+     20          #else
+     21            #include "stack/include/ember.h"
+     22          #endif
+     23          
+     24          #include "hal/hal.h"
+     25          #include "app/util/serial/serial.h"
+     26          #include "app/util/serial/command-interpreter2.h"
+     27          #include "app/util/serial/command-interpreter2-util.h"
+     28          
+     29          #if !defined APP_SERIAL
+     30            extern uint8_t serialPort;
+     31            #define APP_SERIAL serialPort
+     32          #endif
+     33          
+
+   \                                 In section .text, align 4, keep-with-next
+     34          const char * const emberCommandErrorNames[] =
+   \                     emberCommandErrorNames:
+   \   00000000   0x........         DC32 ?_0, ?_1, ?_2, ?_3, ?_4, ?_5, ?_6, ?_7
+   \              0x........   
+   \              0x........   
+   \              0x........   
+   \              0x........   
+   \              0x........   
+   \              0x........   
+   \              0x........   
+     35            {
+     36              "",
+     37              "Serial port error",
+     38              "No such command",
+     39              "Wrong number of args",
+     40              "Arg out of range",
+     41              "Arg syntax error",
+     42              "Too long",
+     43              "Bad arg type"
+     44            };
+     45          
+
+   \                                 In section .text, align 2, keep-with-next
+     46          static void printCommandUsage(EmberCommandEntry *entry) 
+     47          {
+   \                     printCommandUsage: (+1)
+   \   00000000   0xB538             PUSH     {R3-R5,LR}
+   \   00000002   0x4604             MOV      R4,R0
+     48            const char * arg = entry->argumentTypes;
+   \   00000004   0x68A5             LDR      R5,[R4, #+8]
+     49            emberSerialPrintf(APP_SERIAL, "%p", entry->name);
+   \   00000006   0x6822             LDR      R2,[R4, #+0]
+   \   00000008   0x....             ADR.N    R1,??DataTable27  ;; 0x25, 0x70, 0x00, 0x00
+   \   0000000A   0x2001             MOVS     R0,#+1
+   \   0000000C   0x.... 0x....      BL       emberSerialPrintf
+     50          
+     51            if (entry->action == NULL) {
+   \   00000010   0x6860             LDR      R0,[R4, #+4]
+   \   00000012   0xB990             CBNZ.N   R0,??printCommandUsage_0
+     52              emberSerialPrintf(APP_SERIAL, "...");
+   \   00000014   0x....             ADR.N    R1,??DataTable27_1  ;; "..."
+   \   00000016   0x.... 0x....      BL       ?Subroutine0
+     53            } else  {
+     54              while (*arg) {
+     55                uint8_t c = *arg;
+     56                emberSerialPrintf(APP_SERIAL,
+     57                                  (c == 'u' ? " <uint8_t>"
+     58                                   : c == 'v' ? " <uint16_t>"
+     59                                   : c == 'w' ? " <uint32_t>"
+     60                                   : c == 's' ? " <int8_t>"
+     61                                   : c == 'b' ? " <string>"
+     62                                   : c == 'n' ? " ..."
+     63                                   : c == '*' ? " *"
+     64                                   : " ?"));
+     65                arg += 1;
+     66              }
+     67            }
+     68          
+     69            if (entry->description) {
+   \                     ??CrossCallReturnLabel_4: (+1)
+   \   0000001A   0x68E2             LDR      R2,[R4, #+12]
+   \   0000001C   0xB122             CBZ.N    R2,??printCommandUsage_1
+     70              emberSerialPrintf(APP_SERIAL, " - %p", entry->description);
+   \   0000001E   0x.... 0x....      ADR.W    R1,?_18
+   \   00000022   0x2001             MOVS     R0,#+1
+   \   00000024   0x.... 0x....      BL       emberSerialPrintf
+     71            }
+     72            
+     73            emberSerialPrintf(APP_SERIAL, "\r\n");
+   \                     ??printCommandUsage_1: (+1)
+   \   00000028   0xE8BD 0x4034      POP      {R2,R4,R5,LR}
+   \   0000002C   0x....             ADR.N    R1,??DataTable27_2  ;; 0x0D, 0x0A, 0x00, 0x00
+   \   0000002E   0x2001             MOVS     R0,#+1
+   \   00000030   0x.... 0x....      B.W      emberSerialPrintf
+   \                     ??printCommandUsage_2: (+1)
+   \   00000034   0x.... 0x....      BL       ?Subroutine0
+   \                     ??CrossCallReturnLabel_3: (+1)
+   \   00000038   0x1C6D             ADDS     R5,R5,#+1
+   \                     ??printCommandUsage_0: (+1)
+   \   0000003A   0x7828             LDRB     R0,[R5, #+0]
+   \   0000003C   0x2800             CMP      R0,#+0
+   \   0000003E   0xD0EC             BEQ.N    ??CrossCallReturnLabel_4
+   \   00000040   0x2875             CMP      R0,#+117
+   \   00000042   0xBF08             IT       EQ 
+   \   00000044   0x.... 0x....      ADREQ.W  R1,?_10
+   \   00000048   0xD0F4             BEQ.N    ??printCommandUsage_2
+   \   0000004A   0x2876             CMP      R0,#+118
+   \   0000004C   0xBF08             IT       EQ 
+   \   0000004E   0x.... 0x....      ADREQ.W  R1,?_11
+   \   00000052   0xD0EF             BEQ.N    ??printCommandUsage_2
+   \   00000054   0x2877             CMP      R0,#+119
+   \   00000056   0xBF08             IT       EQ 
+   \   00000058   0x.... 0x....      ADREQ.W  R1,?_12
+   \   0000005C   0xD0EA             BEQ.N    ??printCommandUsage_2
+   \   0000005E   0x2873             CMP      R0,#+115
+   \   00000060   0xBF08             IT       EQ 
+   \   00000062   0x.... 0x....      ADREQ.W  R1,?_13
+   \   00000066   0xD0E5             BEQ.N    ??printCommandUsage_2
+   \   00000068   0x2862             CMP      R0,#+98
+   \   0000006A   0xBF08             IT       EQ 
+   \   0000006C   0x.... 0x....      ADREQ.W  R1,?_14
+   \   00000070   0xD0E0             BEQ.N    ??printCommandUsage_2
+   \   00000072   0x286E             CMP      R0,#+110
+   \   00000074   0xBF08             IT       EQ 
+   \   00000076   0x.... 0x....      ADREQ.W  R1,?_15
+   \   0000007A   0xD0DB             BEQ.N    ??printCommandUsage_2
+   \   0000007C   0x282A             CMP      R0,#+42
+   \   0000007E   0xBF0C             ITE      EQ 
+   \   00000080   0x....             ADREQ.N  R1,??DataTable27_3  ;; 0x20, 0x2A, 0x00, 0x00
+   \   00000082   0x....             ADRNE.N  R1,??DataTable27_4  ;; 0x20, 0x3F, 0x00, 0x00
+   \   00000084   0xE7D6             B.N      ??printCommandUsage_2
+     74          }
+
+   \                                 In section .text, align 2, keep-with-next
+   \                     ?Subroutine0: (+1)
+   \   00000000   0x2001             MOVS     R0,#+1
+   \   00000002   0x.... 0x....      B.W      emberSerialPrintf
+     75          
+
+   \                                 In section .text, align 2, keep-with-next
+     76          void emberPrintCommandUsage(EmberCommandEntry *entry)
+     77          {
+   \                     emberPrintCommandUsage: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0xB082             SUB      SP,SP,#+8
+   \   00000004   0x4604             MOV      R4,R0
+     78            EmberCommandEntry *commandFinger;
+     79            printCommandUsage(entry);
+   \   00000006   0x.... 0x....      BL       printCommandUsage
+     80          
+     81            if (emberGetNestedCommand(entry, &commandFinger)) {
+   \   0000000A   0xA900             ADD      R1,SP,#+0
+   \   0000000C   0x4620             MOV      R0,R4
+   \   0000000E   0x.... 0x....      BL       emberGetNestedCommand
+   \   00000012   0xB948             CBNZ.N   R0,??emberPrintCommandUsage_0
+   \   00000014   0xBD13             POP      {R0,R1,R4,PC}
+     82              for (; commandFinger->name != NULL; commandFinger++) {
+     83                emberSerialPrintf(APP_SERIAL, "  ");
+   \                     ??emberPrintCommandUsage_1: (+1)
+   \   00000016   0x....             ADR.N    R1,??DataTable27_5  ;; 0x20, 0x20, 0x00, 0x00
+   \   00000018   0x.... 0x....      BL       ?Subroutine0
+     84                printCommandUsage(commandFinger);
+   \                     ??CrossCallReturnLabel_2: (+1)
+   \   0000001C   0x9800             LDR      R0,[SP, #+0]
+   \   0000001E   0x.... 0x....      BL       printCommandUsage
+     85              }   
+   \   00000022   0x9800             LDR      R0,[SP, #+0]
+   \   00000024   0x3010             ADDS     R0,R0,#+16
+   \   00000026   0x9000             STR      R0,[SP, #+0]
+   \                     ??emberPrintCommandUsage_0: (+1)
+   \   00000028   0x9800             LDR      R0,[SP, #+0]
+   \   0000002A   0x6800             LDR      R0,[R0, #+0]
+   \   0000002C   0x2800             CMP      R0,#+0
+   \   0000002E   0xD1F2             BNE.N    ??emberPrintCommandUsage_1
+     86            }
+     87          }
+   \   00000030   0xBD13             POP      {R0,R1,R4,PC}    ;; return
+     88          
+
+   \                                 In section .text, align 2, keep-with-next
+     89          void emberPrintCommandUsageNotes(void)
+     90          {
+   \                     emberPrintCommandUsageNotes: (+1)
+   \   00000000   0xB580             PUSH     {R7,LR}
+     91            emberSerialPrintf(APP_SERIAL, 
+     92                              "Usage notes:\r\n\r\n"
+     93          #ifndef C8051_COBRA
+     94                              "type      description\r\n"
+     95                              "<uint8_t>   8-bit unsigned int, eg: 255, 0xAB\r\n"
+     96                              "<int8_t>   8-bit signed int, eg: -128, 0xA9\r\n"
+     97                              "<uint16_t>  16-bit unsigned int, eg: 3000 0xFFAA\r\n"
+     98                              "<string>  A string, eg: \"foo\" or {0A 1B 2C}\r\n"
+     99                              "*         Zero or more of the previous type\r\n\r\n"
+    100          #endif // ! C8051_COBRA
+    101                              );
+   \   00000002   0x.... 0x....      ADR.W    R1,?_21
+   \   00000006   0x.... 0x....      BL       ?Subroutine0
+    102            emberSerialWaitSend(APP_SERIAL);
+   \                     ??CrossCallReturnLabel_1: (+1)
+   \   0000000A   0xE8BD 0x4002      POP      {R1,LR}
+   \   0000000E   0x2001             MOVS     R0,#+1
+   \   00000010   0x.... 0x....      B.W      emberSerialWaitSend
+    103          }
+    104          
+
+   \                                 In section .text, align 2, keep-with-next
+    105          void emberPrintCommandTable(void)
+    106          {
+   \                     emberPrintCommandTable: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+    107            EmberCommandEntry *commandFinger = COMMAND_TABLE;
+   \   00000002   0x....             LDR.N    R4,??DataTable27_6
+    108            emberPrintCommandUsageNotes();
+   \   00000004   0x.... 0x....      BL       emberPrintCommandUsageNotes
+   \   00000008   0xE003             B.N      ??emberPrintCommandTable_0
+    109            for (; commandFinger->name != NULL; commandFinger++) {
+    110              printCommandUsage(commandFinger);
+   \                     ??emberPrintCommandTable_1: (+1)
+   \   0000000A   0x4620             MOV      R0,R4
+   \   0000000C   0x.... 0x....      BL       printCommandUsage
+    111            }
+   \   00000010   0x3410             ADDS     R4,R4,#+16
+   \                     ??emberPrintCommandTable_0: (+1)
+   \   00000012   0x6820             LDR      R0,[R4, #+0]
+   \   00000014   0x2800             CMP      R0,#+0
+   \   00000016   0xD1F8             BNE.N    ??emberPrintCommandTable_1
+    112          }
+   \   00000018   0xBD10             POP      {R4,PC}          ;; return
+    113          
+
+   \                                 In section .text, align 2, keep-with-next
+    114          void emberCommandErrorHandler(EmberCommandStatus status,
+    115                                        EmberCommandEntry *command)
+    116          {
+   \                     emberCommandErrorHandler: (+1)
+   \   00000000   0xB510             PUSH     {R4,LR}
+   \   00000002   0x460C             MOV      R4,R1
+    117            emberSerialPrintf(APP_SERIAL, "Error: %p\r\n", emberCommandErrorNames[status]);
+   \   00000004   0x.... 0x....      ADR.W    R1,emberCommandErrorNames
+   \   00000008   0xF851 0x2020      LDR      R2,[R1, R0, LSL #+2]
+   \   0000000C   0x.... 0x....      ADR.W    R1,?_22
+   \   00000010   0x2001             MOVS     R0,#+1
+   \   00000012   0x.... 0x....      BL       emberSerialPrintf
+    118          
+    119            if (command != NULL) {
+   \   00000016   0xB13C             CBZ.N    R4,??emberCommandErrorHandler_0
+    120              emberSerialPrintf(APP_SERIAL, "Usage: ");
+   \   00000018   0x.... 0x....      ADR.W    R1,?_23
+   \   0000001C   0x.... 0x....      BL       ?Subroutine0
+    121              emberPrintCommandUsage(command);
+   \                     ??CrossCallReturnLabel_0: (+1)
+   \   00000020   0x4620             MOV      R0,R4
+   \   00000022   0xE8BD 0x4010      POP      {R4,LR}
+   \   00000026   0x....             B.N      emberPrintCommandUsage
+    122            }
+    123          }
+   \                     ??emberCommandErrorHandler_0: (+1)
+   \   00000028   0xBD10             POP      {R4,PC}          ;; return
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27:
+   \   00000000   0x25 0x70          DC8      0x25, 0x70, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27_1:
+   \   00000000   0x2E 0x2E          DC8      "..."
+   \              0x2E 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27_2:
+   \   00000000   0x0D 0x0A          DC8      0x0D, 0x0A, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27_3:
+   \   00000000   0x20 0x2A          DC8      0x20, 0x2A, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27_4:
+   \   00000000   0x20 0x3F          DC8      0x20, 0x3F, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27_5:
+   \   00000000   0x20 0x20          DC8      0x20, 0x20, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ??DataTable27_6:
+   \   00000000   0x........         DC32     emberCommandTable
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_10:
+   \   00000000   0x20 0x3C          DC8 " <uint8_t>"
+   \              0x75 0x69    
+   \              0x6E 0x74    
+   \              0x38 0x5F    
+   \              0x74 0x3E    
+   \              0x00         
+   \   0000000B   0x00               DC8 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_11:
+   \   00000000   0x20 0x3C          DC8 " <uint16_t>"
+   \              0x75 0x69    
+   \              0x6E 0x74    
+   \              0x31 0x36    
+   \              0x5F 0x74    
+   \              0x3E 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_12:
+   \   00000000   0x20 0x3C          DC8 " <uint32_t>"
+   \              0x75 0x69    
+   \              0x6E 0x74    
+   \              0x33 0x32    
+   \              0x5F 0x74    
+   \              0x3E 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_13:
+   \   00000000   0x20 0x3C          DC8 " <int8_t>"
+   \              0x69 0x6E    
+   \              0x74 0x38    
+   \              0x5F 0x74    
+   \              0x3E 0x00    
+   \   0000000A   0x00 0x00          DC8 0, 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_14:
+   \   00000000   0x20 0x3C          DC8 " <string>"
+   \              0x73 0x74    
+   \              0x72 0x69    
+   \              0x6E 0x67    
+   \              0x3E 0x00    
+   \   0000000A   0x00 0x00          DC8 0, 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_15:
+   \   00000000   0x20 0x2E          DC8 " ..."
+   \              0x2E 0x2E    
+   \              0x00         
+   \   00000005   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_18:
+   \   00000000   0x20 0x2D          DC8 " - %p"
+   \              0x20 0x25    
+   \              0x70 0x00    
+   \   00000006   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 1, keep-with-next
+   \                     ?_0:
+   \   00000000   0x00               DC8 ""
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_1:
+   \   00000000   0x53 0x65          DC8 "Serial port error"
+   \              0x72 0x69    
+   \              0x61 0x6C    
+   \              0x20 0x70    
+   \              0x6F 0x72    
+   \              0x74 0x20    
+   \              0x65 0x72    
+   \              0x72 0x6F    
+   \              0x72 0x00    
+   \   00000012   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_2:
+   \   00000000   0x4E 0x6F          DC8 "No such command"
+   \              0x20 0x73    
+   \              0x75 0x63    
+   \              0x68 0x20    
+   \              0x63 0x6F    
+   \              0x6D 0x6D    
+   \              0x61 0x6E    
+   \              0x64 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_21:
+   \   00000000   0x55 0x73          DC8 55H, 73H, 61H, 67H, 65H, 20H, 6EH, 6FH
+   \              0x61 0x67    
+   \              0x65 0x20    
+   \              0x6E 0x6F    
+   \   00000008   0x74 0x65          DC8 74H, 65H, 73H, 3AH, 0DH, 0AH, 0DH, 0AH
+   \              0x73 0x3A    
+   \              0x0D 0x0A    
+   \              0x0D 0x0A    
+   \   00000010   0x74 0x79          DC8 74H, 79H, 70H, 65H, 20H, 20H, 20H, 20H
+   \              0x70 0x65    
+   \              0x20 0x20    
+   \              0x20 0x20    
+   \   00000018   0x20 0x20          DC8 20H, 20H, 64H, 65H, 73H, 63H, 72H, 69H
+   \              0x64 0x65    
+   \              0x73 0x63    
+   \              0x72 0x69    
+   \   00000020   0x70 0x74          DC8 70H, 74H, 69H, 6FH, 6EH, 0DH, 0AH, 3CH
+   \              0x69 0x6F    
+   \              0x6E 0x0D    
+   \              0x0A 0x3C    
+   \   00000028   0x75 0x69          DC8 75H, 69H, 6EH, 74H, 38H, 5FH, 74H, 3EH
+   \              0x6E 0x74    
+   \              0x38 0x5F    
+   \              0x74 0x3E    
+   \   00000030   0x20 0x20          DC8 20H, 20H, 20H, 38H, 2DH, 62H, 69H, 74H
+   \              0x20 0x38    
+   \              0x2D 0x62    
+   \              0x69 0x74    
+   \   00000038   0x20 0x75          DC8 20H, 75H, 6EH, 73H, 69H, 67H, 6EH, 65H
+   \              0x6E 0x73    
+   \              0x69 0x67    
+   \              0x6E 0x65    
+   \   00000040   0x64 0x20          DC8 64H, 20H, 69H, 6EH, 74H, 2CH, 20H, 65H
+   \              0x69 0x6E    
+   \              0x74 0x2C    
+   \              0x20 0x65    
+   \   00000048   0x67 0x3A          DC8 67H, 3AH, 20H, 32H, 35H, 35H, 2CH, 20H
+   \              0x20 0x32    
+   \              0x35 0x35    
+   \              0x2C 0x20    
+   \   00000050   0x30 0x78          DC8 30H, 78H, 41H, 42H, 0DH, 0AH, 3CH, 69H
+   \              0x41 0x42    
+   \              0x0D 0x0A    
+   \              0x3C 0x69    
+   \   00000058   0x6E 0x74          DC8 6EH, 74H, 38H, 5FH, 74H, 3EH, 20H, 20H
+   \              0x38 0x5F    
+   \              0x74 0x3E    
+   \              0x20 0x20    
+   \   00000060   0x20 0x38          DC8 20H, 38H, 2DH, 62H, 69H, 74H, 20H, 73H
+   \              0x2D 0x62    
+   \              0x69 0x74    
+   \              0x20 0x73    
+   \   00000068   0x69 0x67          DC8 69H, 67H, 6EH, 65H, 64H, 20H, 69H, 6EH
+   \              0x6E 0x65    
+   \              0x64 0x20    
+   \              0x69 0x6E    
+   \   00000070   0x74 0x2C          DC8 74H, 2CH, 20H, 65H, 67H, 3AH, 20H, 2DH
+   \              0x20 0x65    
+   \              0x67 0x3A    
+   \              0x20 0x2D    
+   \   00000078   0x31 0x32          DC8 31H, 32H, 38H, 2CH, 20H, 30H, 78H, 41H
+   \              0x38 0x2C    
+   \              0x20 0x30    
+   \              0x78 0x41    
+   \   00000080   0x39 0x0D          DC8 39H, 0DH, 0AH, 3CH, 75H, 69H, 6EH, 74H
+   \              0x0A 0x3C    
+   \              0x75 0x69    
+   \              0x6E 0x74    
+   \   00000088   0x31 0x36          DC8 31H, 36H, 5FH, 74H, 3EH, 20H, 20H, 31H
+   \              0x5F 0x74    
+   \              0x3E 0x20    
+   \              0x20 0x31    
+   \   00000090   0x36 0x2D          DC8 36H, 2DH, 62H, 69H, 74H, 20H, 75H, 6EH
+   \              0x62 0x69    
+   \              0x74 0x20    
+   \              0x75 0x6E    
+   \   00000098   0x73 0x69          DC8 73H, 69H, 67H, 6EH, 65H, 64H, 20H, 69H
+   \              0x67 0x6E    
+   \              0x65 0x64    
+   \              0x20 0x69    
+   \   000000A0   0x6E 0x74          DC8 6EH, 74H, 2CH, 20H, 65H, 67H, 3AH, 20H
+   \              0x2C 0x20    
+   \              0x65 0x67    
+   \              0x3A 0x20    
+   \   000000A8   0x33 0x30          DC8 33H, 30H, 30H, 30H, 20H, 30H, 78H, 46H
+   \              0x30 0x30    
+   \              0x20 0x30    
+   \              0x78 0x46    
+   \   000000B0   0x46 0x41          DC8 46H, 41H, 41H, 0DH, 0AH, 3CH, 73H, 74H
+   \              0x41 0x0D    
+   \              0x0A 0x3C    
+   \              0x73 0x74    
+   \   000000B8   0x72 0x69          DC8 72H, 69H, 6EH, 67H, 3EH, 20H, 20H, 41H
+   \              0x6E 0x67    
+   \              0x3E 0x20    
+   \              0x20 0x41    
+   \   000000C0   0x20 0x73          DC8 20H, 73H, 74H, 72H, 69H, 6EH, 67H, 2CH
+   \              0x74 0x72    
+   \              0x69 0x6E    
+   \              0x67 0x2C    
+   \   000000C8   0x20 0x65          DC8 20H, 65H, 67H, 3AH, 20H, 22H, 66H, 6FH
+   \              0x67 0x3A    
+   \              0x20 0x22    
+   \              0x66 0x6F    
+   \   000000D0   0x6F 0x22          DC8 6FH, 22H, 20H, 6FH, 72H, 20H, 7BH, 30H
+   \              0x20 0x6F    
+   \              0x72 0x20    
+   \              0x7B 0x30    
+   \   000000D8   0x41 0x20          DC8 41H, 20H, 31H, 42H, 20H, 32H, 43H, 7DH
+   \              0x31 0x42    
+   \              0x20 0x32    
+   \              0x43 0x7D    
+   \   000000E0   0x0D 0x0A          DC8 0DH, 0AH, 2AH, 20H, 20H, 20H, 20H, 20H
+   \              0x2A 0x20    
+   \              0x20 0x20    
+   \              0x20 0x20    
+   \   000000E8   0x20 0x20          DC8 20H, 20H, 20H, 20H, 5AH, 65H, 72H, 6FH
+   \              0x20 0x20    
+   \              0x5A 0x65    
+   \              0x72 0x6F    
+   \   000000F0   0x20 0x6F          DC8 20H, 6FH, 72H, 20H, 6DH, 6FH, 72H, 65H
+   \              0x72 0x20    
+   \              0x6D 0x6F    
+   \              0x72 0x65    
+   \   000000F8   0x20 0x6F          DC8 20H, 6FH, 66H, 20H, 74H, 68H, 65H, 20H
+   \              0x66 0x20    
+   \              0x74 0x68    
+   \              0x65 0x20    
+   \   00000100   0x70 0x72          DC8 70H, 72H, 65H, 76H, 69H, 6FH, 75H, 73H
+   \              0x65 0x76    
+   \              0x69 0x6F    
+   \              0x75 0x73    
+   \   00000108   0x20 0x74          DC8 20H, 74H, 79H, 70H, 65H, 0DH, 0AH, 0DH
+   \              0x79 0x70    
+   \              0x65 0x0D    
+   \              0x0A 0x0D    
+   \   00000110   0x0A 0x00          DC8 0AH, 0
+   \   00000112   0x00 0x00          DC8 0, 0
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_22:
+   \   00000000   0x45 0x72          DC8 "Error: %p\015\012"
+   \              0x72 0x6F    
+   \              0x72 0x3A    
+   \              0x20 0x25    
+   \              0x70 0x0D    
+   \              0x0A 0x00    
+
+   \                                 In section .text, align 4, keep-with-next
+   \                     ?_23:
+   \   00000000   0x55 0x73          DC8 "Usage: "
+   \              0x61 0x67    
+   \              0x65 0x3A    
+   \              0x20 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_3:
+   \   00000000   0x57 0x72          DC8 "Wrong number of args"
+   \              0x6F 0x6E    
+   \              0x67 0x20    
+   \              0x6E 0x75    
+   \              0x6D 0x62    
+   \              0x65 0x72    
+   \              0x20 0x6F    
+   \              0x66 0x20    
+   \              0x61 0x72    
+   \              0x67 0x73    
+   \              0x00         
+   \   00000015   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_4:
+   \   00000000   0x41 0x72          DC8 "Arg out of range"
+   \              0x67 0x20    
+   \              0x6F 0x75    
+   \              0x74 0x20    
+   \              0x6F 0x66    
+   \              0x20 0x72    
+   \              0x61 0x6E    
+   \              0x67 0x65    
+   \              0x00         
+   \   00000011   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_5:
+   \   00000000   0x41 0x72          DC8 "Arg syntax error"
+   \              0x67 0x20    
+   \              0x73 0x79    
+   \              0x6E 0x74    
+   \              0x61 0x78    
+   \              0x20 0x65    
+   \              0x72 0x72    
+   \              0x6F 0x72    
+   \              0x00         
+   \   00000011   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_6:
+   \   00000000   0x54 0x6F          DC8 "Too long"
+   \              0x6F 0x20    
+   \              0x6C 0x6F    
+   \              0x6E 0x67    
+   \              0x00         
+   \   00000009   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_7:
+   \   00000000   0x42 0x61          DC8 "Bad arg type"
+   \              0x64 0x20    
+   \              0x61 0x72    
+   \              0x67 0x20    
+   \              0x74 0x79    
+   \              0x70 0x65    
+   \              0x00         
+   \   0000000D   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_8:
+   \   00000000   0x25 0x70          DC8 "%p"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_9:
+   \   00000000   0x2E 0x2E          DC8 "..."
+   \              0x2E 0x00    
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_16:
+   \   00000000   0x20 0x2A          DC8 " *"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_17:
+   \   00000000   0x20 0x3F          DC8 " ?"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_19:
+   \   00000000   0x0D 0x0A          DC8 "\015\012"
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4, keep-with-next
+   \                     ?_20:
+   \   00000000   0x20 0x20          DC8 "  "
+   \              0x00         
+   \   00000003   0x00               DC8 0
+    124          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   emberCommandErrorHandler
+         0   -> emberPrintCommandUsage
+         8   -> emberSerialPrintf
+       8   emberPrintCommandTable
+         8   -> emberPrintCommandUsageNotes
+         8   -> printCommandUsage
+      16   emberPrintCommandUsage
+        16   -> emberGetNestedCommand
+        16   -> emberSerialPrintf
+        16   -> printCommandUsage
+       8   emberPrintCommandUsageNotes
+         8   -> emberSerialPrintf
+         0   -> emberSerialWaitSend
+      16   printCommandUsage
+         0   -> emberSerialPrintf
+        16   -> emberSerialPrintf
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable27
+       4  ??DataTable27_1
+       4  ??DataTable27_2
+       4  ??DataTable27_3
+       4  ??DataTable27_4
+       4  ??DataTable27_5
+       4  ??DataTable27_6
+       6  ?Subroutine0
+       1  ?_0
+      20  ?_1
+      12  ?_10
+      12  ?_11
+      12  ?_12
+      12  ?_13
+      12  ?_14
+       8  ?_15
+       4  ?_16
+       4  ?_17
+       8  ?_18
+       4  ?_19
+      16  ?_2
+       4  ?_20
+     276  ?_21
+      12  ?_22
+       8  ?_23
+      24  ?_3
+      20  ?_4
+      20  ?_5
+      12  ?_6
+      16  ?_7
+       4  ?_8
+       4  ?_9
+      42  emberCommandErrorHandler
+      32  emberCommandErrorNames
+      26  emberPrintCommandTable
+      50  emberPrintCommandUsage
+      20  emberPrintCommandUsageNotes
+     134  printCommandUsage
+
+ 
+ 153 bytes in section .rodata
+ 710 bytes in section .text
+ 
+ 710 bytes of CODE  memory
+ 153 bytes of CONST memory
+
+Errors: none
+Warnings: none
